@@ -1,9 +1,14 @@
 ---
-name: land
-description: Safely merge an approved PR and close out the story
+name: harness-git-land
+description: >
+  Safely merge an approved PR and close out the story packet. Use instead of
+  manually merging in this project — this skill verifies approval and CI, detects
+  the project's merge convention, transitions the story status to done, updates
+  TEST_MATRIX.md, and handles branch-protected main by opening a follow-up close PR.
+  Invoke when a story is in merging status and the PR has human approval.
 ---
 
-# Land Skill
+# Harness Git Land
 
 ## Goal
 
@@ -131,5 +136,5 @@ is on main (unprotected) or in an auto-merging follow-up PR (protected).
 
 ## Related Skills
 
-- `push`: if the branch needed a final update before merge, run push first.
-- `pull`: if main has advanced since the branch was last synced.
+- `harness-git-push`: if the branch needed a final update before merge, run push first.
+- `harness-git-pull`: if main has advanced since the branch was last synced.
