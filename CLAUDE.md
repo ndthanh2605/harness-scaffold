@@ -20,7 +20,9 @@ Read in this order:
 7. `docs/stories/` for story packets and backlog.
 8. `docs/TEST_MATRIX.md` for proof status.
 9. `docs/decisions/` for why important choices were made.
-10. `.claude/skills/` for git workflow skill contracts (commit, push, pull, land).
+10. `.claude/skills/` for skill contracts:
+    - `harness-intake` — feature intake, lane classification, story location (invoke at task start)
+    - `harness-git-commit`, `harness-git-push`, `harness-git-pull`, `harness-git-land` — git workflow contracts (use these, not the global commit-commands skills)
 
 This harness does not ship with a project-specific `SPEC.md`. When the human
 provides a spec for a new project, treat that spec as input material for the
@@ -32,12 +34,19 @@ then become the living contract that agents should update as the system evolves.
 
 For every task:
 
-1. Classify the request with `docs/FEATURE_INTAKE.md`.
+1. Invoke the `harness-intake` skill. It classifies the request, selects the
+   execution lane, and locates or proposes the story packet. Do not proceed
+   to step 2 until the skill produces a cleared Intake Report.
 2. Identify whether the input is a new spec, spec slice, change request, new
    initiative, maintenance request, or harness improvement.
 3. Locate the affected product docs and story files.
 4. Check `docs/TEST_MATRIX.md` for existing proof and gaps.
 5. Work only inside the selected lane: tiny, normal, or high-risk.
+   - Stay on the approved plan. When a surprise forces you across an
+     `[INVARIANT]` (a declared signature, data model, dependency, file list, or
+     an AC's proof method), do not improvise a workaround — follow the **Plan
+     Deviation Protocol** (`docs/HARNESS.md`): stop, record it in the workpad
+     `## Deviations`, and get it ratified.
 6. Before finishing, ask:
    - Did product truth change?
    - Did validation expectations change?
@@ -46,6 +55,7 @@ For every task:
    - Did the next agent need a clearer instruction?
    - Was the workpad sibling updated throughout execution?
    - Was the correct skill used for each git operation (commit, push, pull, land)?
+   - Were any plan deviations recorded and ratified (not silently worked around)?
    - Is the story status at the correct state-machine gate for where work stands?
 7. Update routine harness files directly, or add a proposal to
    `docs/HARNESS_BACKLOG.md` when the change is structural.
@@ -74,6 +84,9 @@ A task is done only when:
 
 - The requested change is completed or the blocker is documented.
 - Relevant docs, stories, and test matrix entries remain current.
-- Validation commands were run when they exist.
+- Validation was run via `scripts/validate.sh <rung>` (always at least
+  `validate.sh quick`, which runs the `scripts/harness-check.sh` self-check).
+  Project-specific rungs live in `.harness/` hooks; see `docs/HARNESS.md`
+  → `## Validation Ladder`.
 - Missing harness capabilities were added to `docs/HARNESS_BACKLOG.md`.
 - The final response says what changed and what was not attempted.

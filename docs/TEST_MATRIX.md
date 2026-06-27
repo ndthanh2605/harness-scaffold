@@ -21,6 +21,7 @@ implemented until tests or validation evidence exist.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | TBD | Add rows when story packets are created | no | no | no | no | planned | none |
 | harness-execution-layer | Execution state machine, workpad sibling, git workflow skills present | no | no | no | yes | implemented | grep proofs in docs/superpowers/plans/2026-05-16-symphony-execution-layer.md Task 8 |
+| harness-validation-layer | Language-agnostic validate.sh runner, harness-check.sh self-check, new-story.sh scaffolder; unconfigured rungs fail honestly | no | no | no | yes | implemented | scripts/harness-check.sh exit 0 on repo; validate.sh quick green, validate.sh e2e non-zero; harness-check red on broken fixture; ADR-0006 |
 
 ## Evidence Rules
 

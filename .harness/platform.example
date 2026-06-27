@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# .harness/platform — shell / desktop / mobile / deployment smoke checks.
+# Copy to `.harness/platform`, `chmod +x`, and fill in your commands.
+# To opt out (no native/platform layer): replace the body with `echo skip`.
+#
+set -euo pipefail
+
+# Examples:
+# npm run tauri build -- --debug
+# xcodebuild test -scheme App
+# ./gradlew connectedAndroidTest
+# docker build -t app:smoke . && docker run --rm app:smoke /healthcheck
+
+echo "platform: not configured — edit .harness/platform (or 'echo skip' to opt out)" >&2
+exit 1

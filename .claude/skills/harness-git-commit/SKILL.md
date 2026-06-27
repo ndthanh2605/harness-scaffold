@@ -1,9 +1,14 @@
 ---
-name: commit
-description: Produce a well-formed conventional commit with rationale
+name: harness-git-commit
+description: >
+  Produce a well-formed conventional commit with security checks and rationale.
+  Use instead of commit-commands:commit in this project — this skill enforces
+  harness-specific staging discipline, conventional commit format, required Why:
+  rationale, and a post-commit verification step. Invoke whenever committing
+  changes in the harness repository.
 ---
 
-# Commit Skill
+# Harness Git Commit
 
 ## Goal
 
@@ -29,7 +34,16 @@ message that explains both what changed and why.
    committed. If anything unintended is present, unstage it with
    `git restore --staged <file>` and return to step 2.
 
-4. Draft the commit message using conventional commit format:
+4. **Plan-deviation self-check.** Review the staged diff for an undocumented
+   workaround, a `TODO`/`FIXME`/`HACK` or suppressed warning, a new file not in
+   the story's `## Declared Files`, or any other crossing of an `[INVARIANT]`. If
+   one is present, do not commit it as-is: remove the workaround, declare the
+   file, or follow the Plan Deviation Protocol (`docs/HARNESS.md`) to record and
+   ratify the deviation in the workpad `## Deviations` first. This is a legibility
+   check by the agent — there is no mechanical gate yet (a `harness-cli` deviation
+   gate is backlogged).
+
+5. Draft the commit message using conventional commit format:
 
    ```
    type(scope): short summary under 72 chars
@@ -43,9 +57,9 @@ message that explains both what changed and why.
 
    The `Why:` line is required. "fix bug" or "add feature" with no rationale
    is not acceptable output. Replace `Claude` with the actual running model
-   name (e.g., `Claude Opus 4.7`) if exact attribution is preferred.
+   name (e.g., `Claude Sonnet 4.6`) if exact attribution is preferred.
 
-5. Commit using a heredoc to preserve formatting:
+6. Commit using a heredoc to preserve formatting:
 
    ```bash
    git commit -m "$(cat <<'EOF'
@@ -58,7 +72,7 @@ message that explains both what changed and why.
    )"
    ```
 
-6. Run `git log -1 --oneline` to verify the commit was created correctly.
+7. Run `git log -1 --oneline` to verify the commit was created correctly.
 
 ## Output
 
@@ -67,4 +81,4 @@ trailer. Only explicitly-staged files are included.
 
 ## Next
 
-Run the `push` skill to push the branch and update the PR.
+Run the `harness-git-push` skill to push the branch and update the PR.

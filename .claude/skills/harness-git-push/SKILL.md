@@ -1,9 +1,14 @@
 ---
-name: push
-description: Push branch to remote and create or update the PR
+name: harness-git-push
+description: >
+  Push branch to remote and create or update the PR, with a pre-push security
+  scan and story packet Evidence linking. Use instead of commit-commands:commit-push-pr
+  in this project — this skill scans for sensitive files, creates a PR referencing
+  the story packet, and records the PR URL in the story Evidence section.
+  Invoke after committing to push work and open or update the PR.
 ---
 
-# Push Skill
+# Harness Git Push
 
 ## Goal
 
@@ -37,8 +42,8 @@ story packet Evidence section.
    git push -u origin HEAD
    ```
 
-   If rejected (non-fast-forward): stop and run the `pull` skill to sync
-   with origin/main first, then return to step 1 of this skill.
+   If rejected (non-fast-forward): stop and run the `harness-git-pull` skill
+   to sync with origin/main first, then return to step 1 of this skill.
 
 4. Check whether a PR already exists:
 
@@ -74,5 +79,5 @@ Branch pushed to origin. PR open and URL recorded in story packet Evidence.
 
 ## Related Skills
 
-- `pull`: run this first if push is rejected (non-fast-forward).
-- `land`: run this after the PR is approved and CI is green.
+- `harness-git-pull`: run this first if push is rejected (non-fast-forward).
+- `harness-git-land`: run this after the PR is approved and CI is green.

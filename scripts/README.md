@@ -25,23 +25,31 @@ application source folders, package scripts, CI, tests, platform shells, or fake
 validation commands. The installer script is not part of the installed project
 payload.
 
-## Future Command Contract
+## Validation And Support Scripts
 
-Expected future checks:
+These are harness automation (not application source), so they are exempt from the
+"no application scaffolding" rule above. None of them hardcodes a language or
+toolchain — that keeps the scaffold general.
+
+- **`validate.sh <rung>`** — language-agnostic validation runner. Rungs:
+  `quick | integration | e2e | platform | release`. Each rung dispatches to a
+  project-owned hook at `.harness/<rung>` (see `.harness/README.md`). `quick`
+  always runs `harness-check.sh` first. An unconfigured rung **fails** (exits
+  non-zero) — it is never falsely green, so this is the opposite of a fake
+  validation command.
+- **`harness-check.sh`** — harness self-check (doc-lint). Validates the harness's
+  own artifacts (story sections, workpad siblings, `## Declared Files` fences, no
+  unratified deviations on done stories, decision-record references, the test
+  matrix). Needs no product code; it is the always-on base of `validate:quick`.
+- **`new-story.sh <US-ID> <slug> [--high-risk]`** — scaffolds a story packet (and
+  workpad) from `docs/templates/`.
+
+A project adapts validation by editing `.harness/` hooks, never these scripts.
 
 ```text
-validate:quick
-  format, lint, typecheck, unit tests, architecture check
-
-test:integration
-  backend contract and integration checks
-
-test:e2e
-  user-visible end-to-end flows
-
-test:platform
-  platform shell smoke checks, if the project has a native shell
-
-test:release
-  full suite, log checks, and performance smoke
+quick        format, lint, typecheck, unit tests, harness self-check
+integration  backend contract and integration checks
+e2e          user-visible end-to-end flows
+platform     platform / shell / desktop / mobile / deployment smoke
+release      full suite, log checks, and performance smoke
 ```

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# .harness/release — full suite, log checks, performance smoke before release.
+# Copy to `.harness/release`, `chmod +x`, and fill in your commands.
+# To opt out: replace the body with `echo skip`.
+#
+set -euo pipefail
+
+# Examples — typically compose the lower rungs plus release-only checks:
+# bash scripts/validate.sh quick
+# bash scripts/validate.sh integration
+# bash scripts/validate.sh e2e
+# npm run build && npm run perf:smoke
+
+echo "release: not configured — edit .harness/release (or 'echo skip' to opt out)" >&2
+exit 1

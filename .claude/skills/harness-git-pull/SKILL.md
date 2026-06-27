@@ -1,9 +1,14 @@
 ---
-name: pull
-description: Sync current branch with origin/main before editing
+name: harness-git-pull
+description: >
+  Sync current branch with origin/main before editing, and record the result
+  in the story workpad sibling. Use instead of a plain git pull in this project
+  — this skill includes conflict resolution guidance and writes the sync result
+  (including HEAD SHA) to the workpad Notes section as required by the harness.
+  Invoke before starting or continuing any implementation work on a story branch.
 ---
 
-# Pull Skill
+# Harness Git Pull
 
 ## Goal
 
@@ -76,5 +81,5 @@ and resulting HEAD SHA.
 
 ## Related Skills
 
-- `push`: run this skill when push is rejected due to non-fast-forward.
-- `commit`: run after pull to commit any conflict-resolution changes.
+- `harness-git-push`: run this skill when push is rejected due to non-fast-forward.
+- `harness-git-commit`: run after pull to commit any conflict-resolution changes.

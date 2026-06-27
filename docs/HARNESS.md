@@ -163,7 +163,7 @@ fully met. Never advance status optimistically.
 | From | To | Gate |
 |---|---|---|
 | `todo` | `in_progress` | Agent creates workpad sibling, runs pull skill, begins implementation |
-| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, PR linked, no uncommitted changes |
+| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, any plan deviations recorded and ratified (see Plan Deviation Protocol), PR linked, no uncommitted changes |
 | `human_review` | `merging` | Human approves PR |
 | `human_review` | `rework` | Human posts actionable feedback |
 | `rework` | `in_progress` | Agent resets workpad, re-implements |
@@ -190,7 +190,78 @@ See `docs/decisions/0004-execution-state-machine.md` for the rationale.
 6. **Operate autonomously until truly blocked** — `blocked` is an escape hatch
    for external blockers (missing auth, missing required tool, required human
    decision after exhausting all fallbacks). It is not a shortcut for
-   difficult problems.
+   difficult problems. But difficult is not the same as plan-breaking: when a
+   surprise forces you off the approved plan across an `[INVARIANT]`, do not
+   improvise a workaround — follow the Plan Deviation Protocol below.
+
+### Plan Deviation Protocol
+
+The default posture keeps an agent moving autonomously. This protocol is the
+sanctioned middle path between "push through" and `blocked`: it fires when
+reality diverges from the approved plan but work could still proceed. It exists
+so that plan changes **surface and get ratified** instead of being silently
+worked around — the failure mode that hurts most when implementation runs in
+auto-accept on a fast or weak model.
+
+**Invariant markers.** Plans, stories, and execplans tag load-bearing items so
+the line between "must not change" and "free to decide" is explicit:
+
+- `[INVARIANT]` — load-bearing. Interfaces and signatures, the data model, the
+  declared file list, dependency choices, architecture constraints, and an
+  acceptance criterion's proof method. Must not change without a ratified
+  deviation (or a decision record for cross-cutting choices).
+- `[FLEX]` — implementer's discretion. Internal structure, naming, helper
+  decomposition. Adjust freely; a one-line Deviations note is enough.
+
+Anything a plan does not mark is treated as `[INVARIANT]` by default — when in
+doubt, it is load-bearing.
+
+**What counts as a deviation.** Any departure from the approved plan that
+crosses an `[INVARIANT]`:
+
+- changing a declared interface, signature, or data model;
+- swapping or adding a dependency;
+- adding a file or module not in the plan's `## Declared Files` list;
+- changing an acceptance criterion's proof method;
+- bending an architecture constraint;
+- introducing a workaround, `TODO`/`FIXME`/`HACK`, or a suppressed
+  warning/type error to make something pass.
+
+**Procedure.** When a deviation is forced:
+
+1. **Stop at the deviation point.** Do not implement the crossing change yet.
+2. **Record it** in the workpad `## Deviations` section: what was planned, what
+   you did or propose instead, why, which `[INVARIANT]` it crosses, and the
+   proposed resolution.
+3. **Do not ship an unratified invariant crossing.** Implement the parts that
+   do not cross an invariant, leave the crossing change for human ratification,
+   and set status to `blocked` if you cannot make further progress without it.
+4. A `[FLEX]` adjustment needs only the one-line Deviations note, then continue.
+
+**Deviation vs. blocked.** `blocked` means an *external* obstacle stops all
+progress (missing auth/tool/decision). A *deviation* is *internal*: the plan no
+longer matches reality and you could proceed — but must not silently cross an
+invariant. A deviation may escalate to `blocked` if the crossing change is the
+only way forward.
+
+**Enforcement.** Two layers, plus human review at the
+`in_progress → human_review` gate:
+
+- **Structural (always on).** `scripts/harness-check.sh` — the base of
+  `validate:quick` — fails when a `done` story still carries an unratified (`open`)
+  deviation in its workpad, and checks that `## Declared Files` fences parse. This
+  needs no product code, so it runs even in a harness-only repo.
+- **Source markers (opt-in, project-level).** `.harness/deviation-scan` (shipped as
+  `.harness/deviation-scan.example`) is a language-agnostic gate that fails on
+  workaround markers added without a `DEVIATION:` note and on new source files
+  missing from the active story's `## Declared Files`. A project enables it by
+  copying the example and wiring it into its `.harness/quick` hook.
+
+Beyond these, recording deviations honestly remains the agent's responsibility; a
+richer durable surface (a `harness-cli` deviation/intervention record + a
+`story verify` gate) stays the future option in `docs/HARNESS_BACKLOG.md`. See
+`docs/decisions/0005-plan-deviation-protocol.md` and
+`docs/decisions/0006-config-driven-validation.md`.
 
 ### Blocked-Access Escape Hatch
 
@@ -209,26 +280,34 @@ When an agent is confused, repeats manual reasoning, needs a new validation
 command, discovers a missing rule, or sees a recurring failure pattern, it must
 either improve the harness directly or add a proposal to `HARNESS_BACKLOG.md`.
 
-## Future Validation Ladder
+## Validation Ladder
 
-No validation scripts exist yet. When implementation begins, the expected ladder
-is:
+Validation runs through a single language-agnostic runner so the harness adapts to
+any stack without per-project script edits:
 
 ```text
-validate:quick
-  format, lint, typecheck, unit tests, architecture check
-
-test:integration
-  backend, database, provider, or service checks as the stack requires
-
-test:e2e
-  user-visible end-to-end flows
-
-test:platform
-  shell, mobile, desktop, or deployment smoke checks as the stack requires
-
-test:release
-  full suite, log checks, and performance smoke
+scripts/validate.sh <rung>     rung ∈ quick | integration | e2e | platform | release
 ```
 
-Agents must not claim these commands pass until they exist and have been run.
+Each rung dispatches to a project-owned hook at `.harness/<rung>` (see
+`.harness/README.md`). The scaffold ships the runner plus `.harness/*.example`
+templates; a project copies an example to the real name and fills in its commands.
+
+```text
+quick        scripts/harness-check.sh (always) + .harness/quick
+             format, lint, typecheck, unit tests, harness self-check
+integration  .harness/integration — backend / database / provider / service
+e2e          .harness/e2e — user-visible end-to-end flows
+platform     .harness/platform — shell / desktop / mobile / deployment smoke
+release      .harness/release — full suite, log checks, performance smoke
+```
+
+`scripts/harness-check.sh` validates the harness's **own** artifacts (story
+sections, workpad siblings, `## Declared Files` fences, no unratified deviations on
+done stories, decision-record references, the test matrix) and needs no product
+code — so `validate:quick` is meaningful and green even in a harness-only repo.
+
+**Honest by construction.** A rung with no configured hook **fails** (the runner
+exits non-zero); it is never falsely green. Agents must not claim a rung passes
+until its hook exists and has been run. A project deliberately opts a rung out by
+making its hook print `skip`.
