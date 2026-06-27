@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# .harness/e2e — user-visible end-to-end flows.
+# Copy to `.harness/e2e`, `chmod +x`, and fill in your commands.
+# To opt out (no e2e layer): replace the body with `echo skip`.
+#
+set -euo pipefail
+
+# Examples:
+# npx playwright test
+# npx cypress run
+# pytest tests/e2e -q
+
+echo "e2e: not configured — edit .harness/e2e (or 'echo skip' to opt out)" >&2
+exit 1

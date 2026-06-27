@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# .harness/quick — fast inner-loop checks: format, lint, typecheck, unit tests.
+# Copy to `.harness/quick`, `chmod +x`, and uncomment the lines for your stack.
+# Exit non-zero on any failure. (harness-check.sh already runs before this.)
+#
+set -euo pipefail
+
+# --- Node / TypeScript -------------------------------------------------------
+# npm run lint
+# npm run typecheck
+# npm test
+
+# --- Python ------------------------------------------------------------------
+# ruff check .
+# ruff format --check .
+# mypy .
+# pytest -q
+
+# --- Rust --------------------------------------------------------------------
+# cargo fmt --check
+# cargo clippy -- -D warnings
+# cargo test
+
+# --- Go ----------------------------------------------------------------------
+# gofmt -l . | (! grep .)        # fail if anything is unformatted
+# go vet ./...
+# go test ./...
+
+# --- Optional: plan-deviation marker gate ------------------------------------
+# bash .harness/deviation-scan
+
+echo "quick: no checks configured — edit .harness/quick for your stack" >&2
+exit 1

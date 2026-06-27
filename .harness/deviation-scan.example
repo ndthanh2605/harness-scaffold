@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+#
+# .harness/deviation-scan — opt-in, language-agnostic plan-deviation marker gate.
+#
+# Enforces the Plan Deviation Protocol (docs/HARNESS.md) mechanically on a story
+# branch. It fails when implementation has silently drifted from the plan:
+#   1. workaround markers on ADDED lines of source files (no DEVIATION: note);
+#   2. NEW source files not listed in the active story's `## Declared Files`.
+# (The structural check — no unratified deviation on a done story — is handled by
+#  scripts/harness-check.sh, so it is not repeated here.)
+#
+# Copy to `.harness/deviation-scan`, `chmod +x`, set SOURCE_RE/EXT_RE for your
+# layout, and call it from `.harness/quick`. It is a NO-OP off story branches.
+#
+# Overrides for testing:
+#   STORY_DIR=<path>            force the active story-packet directory
+#   DEVIATION_BASE=<git ref>    force the diff base (default: merge-base with main)
+#
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
+
+# --- CONFIGURE FOR YOUR PROJECT ---------------------------------------------
+# Which paths count as source (anchored at repo root). Customise these two.
+SOURCE_RE='^(src|lib|app)/'                    # e.g. '^(frontend|backend)/'
+EXT_RE='\.(ts|tsx|js|jsx|py|rs|go|java|rb)$'
+EXCLUDE_RE='(node_modules|\.venv|/target/|/dist/|/build/|__pycache__|\.lock$|-lock\.)'
+MARKER_RE='(TODO|FIXME|HACK|XXX|unimplemented!|todo!|#\[allow\(|type:[[:space:]]*ignore|noqa|except:[[:space:]]*pass|@ts-ignore|@ts-nocheck|eslint-disable)'
+# ----------------------------------------------------------------------------
+
+note() { printf '%s\n' "$*"; }
+
+BASE="${DEVIATION_BASE:-}"
+[ -n "$BASE" ] || BASE="$(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD main 2>/dev/null || true)"
+[ -n "$BASE" ] || { note "deviation-scan: no main base — skipping."; exit 0; }
+
+# Resolve the active story packet from the branch (story/<id>-<slug>).
+if [ -z "${STORY_DIR:-}" ]; then
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+  case "$branch" in
+    story/*) id="${branch#story/}"; id="${id%%-*}"
+             match="$(find docs/stories -iname "*${id}*" 2>/dev/null | head -n1 || true)"
+             [ -n "$match" ] && STORY_DIR="$(dirname "$match")" ;;
+  esac
+fi
+[ -n "${STORY_DIR:-}" ] && [ -d "${STORY_DIR:-}" ] || { note "deviation-scan: no story packet for this branch — skipping."; exit 0; }
+note "deviation-scan: story packet = $STORY_DIR (base ${BASE:0:12})"
+
+filter_src() { grep -E "$SOURCE_RE" | grep -Ev "$EXCLUDE_RE" || true; }
+violations=0
+
+# --- Check 1: workaround markers on added lines -----------------------------
+changed="$({ git diff --name-only "$BASE" HEAD; git diff --name-only HEAD; git diff --cached --name-only; } 2>/dev/null | sort -u | filter_src | grep -E "$EXT_RE" || true)"
+while IFS= read -r f; do
+  [ -n "$f" ] && [ -f "$f" ] || continue
+  added="$({ git diff "$BASE" HEAD -- "$f"; git diff HEAD -- "$f"; } 2>/dev/null | grep -E '^\+' | grep -Ev '^\+\+\+' || true)"
+  hit="$(printf '%s\n' "$added" | grep -E "$MARKER_RE" | grep -v 'DEVIATION:' || true)"
+  if [ -n "$hit" ]; then
+    note "FAIL — workaround marker added without a DEVIATION: note in $f:"
+    printf '%s\n' "$hit" | sed 's/^+/    /'
+    violations=$((violations + 1))
+  fi
+done <<< "$changed"
+
+# --- Check 2: new source files not in `## Declared Files` --------------------
+declared="$(for md in "$STORY_DIR"/*.md; do [ -f "$md" ] && awk '/^```files/{f=1;next} /^```/{f=0} f' "$md"; done 2>/dev/null | sed 's/[[:space:]]*$//' | grep -Ev '(^$|<)' | sort -u || true)"
+new="$({ git diff --diff-filter=A --name-only "$BASE" HEAD; git diff --cached --diff-filter=A --name-only; git ls-files --others --exclude-standard; } 2>/dev/null | sort -u | filter_src || true)"
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  if ! printf '%s\n' "$declared" | grep -qxF "$f"; then
+    note "FAIL — new source file not in $STORY_DIR ## Declared Files: $f"
+    violations=$((violations + 1))
+  fi
+done <<< "$new"
+
+[ "$violations" -eq 0 ] && { note "deviation-scan: clean."; exit 0; }
+note "deviation-scan: $violations violation(s) — log + ratify in the workpad ## Deviations, or annotate the line with DEVIATION:."
+exit 1

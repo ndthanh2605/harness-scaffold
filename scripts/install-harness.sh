@@ -359,10 +359,11 @@ while IFS= read -r relative; do
   copy_file "$relative"
 done <<'EOF'
 CLAUDE.md
-.claude/skills/commit.md
-.claude/skills/land.md
-.claude/skills/pull.md
-.claude/skills/push.md
+.claude/skills/harness-intake/SKILL.md
+.claude/skills/harness-git-commit/SKILL.md
+.claude/skills/harness-git-push/SKILL.md
+.claude/skills/harness-git-pull/SKILL.md
+.claude/skills/harness-git-land/SKILL.md
 README.md
 docs/ARCHITECTURE.md
 docs/FEATURE_INTAKE.md
@@ -375,6 +376,8 @@ docs/decisions/0001-harness-first-development.md
 docs/decisions/0002-post-spec-product-lifecycle.md
 docs/decisions/0003-generic-spec-intake-harness.md
 docs/decisions/0004-execution-state-machine.md
+docs/decisions/0005-plan-deviation-protocol.md
+docs/decisions/0006-config-driven-validation.md
 docs/decisions/README.md
 docs/product/README.md
 docs/stories/README.md
@@ -390,6 +393,16 @@ docs/templates/high-risk-story/workpad.md
 docs/templates/high-risk-story/overview.md
 docs/templates/high-risk-story/validation.md
 scripts/README.md
+scripts/validate.sh
+scripts/harness-check.sh
+scripts/new-story.sh
+.harness/README.md
+.harness/quick.example
+.harness/integration.example
+.harness/e2e.example
+.harness/platform.example
+.harness/release.example
+.harness/deviation-scan.example
 EOF
 
 log ""

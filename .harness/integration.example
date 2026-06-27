@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# .harness/integration — backend / database / provider / service contract checks.
+# Copy to `.harness/integration`, `chmod +x`, and fill in your commands.
+# To opt out (no integration layer): replace the body with `echo skip`.
+#
+set -euo pipefail
+
+# Examples:
+# npm run test:integration
+# pytest tests/integration -q
+# cargo test --test integration
+# go test -tags=integration ./...
+
+echo "integration: not configured — edit .harness/integration (or 'echo skip' to opt out)" >&2
+exit 1
