@@ -140,6 +140,10 @@ write_source_file() {
 
   local url="$SOURCE_BASE_URL/$relative"
   curl -fsSL "$url" -o "$target" || fail "Could not download $url"
+  # curl drops the source mode; restore +x for shell scripts so an installed
+  # scripts/*.sh (e.g. validate.sh) is runnable. Local installs use cp -p above
+  # and already preserve the bit. .harness/*.example stay non-executable.
+  case "$relative" in *.sh) chmod +x "$target" ;; esac
 }
 
 # Note: .claude/ is not protected here because target projects may already

@@ -83,17 +83,23 @@ the step-by-step plan, checked-off acceptance criteria, validation commands, and
 progress notes. The story packet stays a stable contract; the workpad mutates
 freely. See `docs/decisions/0004-execution-state-machine.md` for the rationale.
 
-### Git Workflow Skills
+### Skills
 
-Four skill files in `.claude/skills/` define the git workflow:
+Each skill lives at `.claude/skills/<name>/SKILL.md`:
 
-- `commit.md` — conventional commit with explicit staging and required rationale
-- `push.md` — push branch, create or update PR, link PR to story packet
-- `pull.md` — sync with `origin/main`, record result in workpad Notes
-- `land.md` — safe merge after approval, with branch-protection detection
+- `harness-intake/SKILL.md` — feature intake: classify the request, select the
+  lane, locate or propose the story packet (invoke at task start)
+- `harness-git-commit/SKILL.md` — conventional commit with explicit staging and
+  required rationale
+- `harness-git-push/SKILL.md` — push branch, create or update PR, link PR to story
+  packet
+- `harness-git-pull/SKILL.md` — sync with `origin/main`, record result in workpad
+  Notes
+- `harness-git-land/SKILL.md` — safe merge after approval, with branch-protection
+  detection
 
-Skills cross-reference each other: `push` calls `pull` on rejection; `land`
-calls `push` and checks CI before merging.
+Skills cross-reference each other: `harness-git-push` calls `harness-git-pull` on
+rejection; `harness-git-land` calls `harness-git-push` and checks CI before merging.
 
 ## Product Sources
 
@@ -120,7 +126,11 @@ a real project supplies one.
 - `docs/HARNESS_BACKLOG.md`: proposed harness improvements.
 - `docs/templates/`: reusable spec-intake, story, workpad, decision, and
   validation templates.
-- `.claude/skills/`: git workflow skill contracts (commit, push, pull, land).
+- `.claude/skills/`: skill contracts — `harness-intake` plus the `harness-git-*`
+  (commit, push, pull, land) git workflow set.
+- `scripts/`: `validate.sh` (validation-ladder runner), `harness-check.sh`
+  (zero-product self-check), `new-story.sh` (packet scaffolder), `install-harness.sh`.
+- `.harness/`: project-owned validation hooks (`<rung>` + `*.example` templates).
 
 ## Repository Structure
 
@@ -130,10 +140,19 @@ project/
   README.md
   .claude/
     skills/
-      commit.md                      conventional commit skill
-      push.md                        push + PR skill
-      pull.md                        sync with main skill
-      land.md                        safe merge skill
+      harness-intake/SKILL.md        feature intake and lane classification
+      harness-git-commit/SKILL.md    conventional commit skill
+      harness-git-push/SKILL.md      push + PR skill
+      harness-git-pull/SKILL.md      sync with main skill
+      harness-git-land/SKILL.md      safe merge skill
+  .harness/                          project-owned validation hooks
+    README.md
+    quick.example                    hook templates per ladder rung
+    integration.example
+    e2e.example
+    platform.example
+    release.example
+    deviation-scan.example           opt-in plan-deviation marker gate
   docs/
     HARNESS.md                       full operating model
     FEATURE_INTAKE.md                work classification and risk lanes
@@ -159,6 +178,9 @@ project/
       spec-intake.md
       validation-report.md
   scripts/
+    validate.sh                      validation-ladder runner (dispatches to .harness/<rung>)
+    harness-check.sh                 zero-product harness self-check (validate:quick base)
+    new-story.sh                     scaffold a story packet from templates
     install-harness.sh
     README.md
 ```

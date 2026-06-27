@@ -57,16 +57,22 @@ check_packet() {
   fi
 
   # Declared Files fence, if present, must be closed (lenient — optional section).
+  # Track the 'files' fence specifically: counting all bare ``` closings would be
+  # fooled by other code blocks (```bash, etc.) and miss a genuinely open fence.
   if grep -qE '^```files' "$f"; then
-    local opens closes
-    opens=$(grep -cE '^```files' "$f")
-    closes=$(grep -cE '^```$' "$f")
-    [ "$closes" -ge "$opens" ] || viol "$f: a '\`\`\`files' fence is not closed"
+    awk '
+      /^```files/       { infiles=1; next }
+      infiles && /^```/ { infiles=0; next }
+      END               { exit infiles }
+    ' "$f" || viol "$f: a '\`\`\`files' fence is not closed"
   fi
 
   # A done story must not carry an unratified (open) deviation in its workpad.
+  # A real entry reads "(status: open)"; the template placeholder reads
+  # "(status: open | ratified)". Anchor on the closing paren so only genuine open
+  # entries match — not the placeholder (the ' |' after open defeats the '\)').
   if [ "$st" = "done" ] && [ -f "$workpad" ]; then
-    if grep -iE 'status:[[:space:]]*open' "$workpad" | grep -qiv 'ratified'; then
+    if grep -qiE 'status:[[:space:]]*open[[:space:]]*\)' "$workpad"; then
       viol "$workpad: a '## Deviations' entry is still open on a done story"
     fi
   fi
