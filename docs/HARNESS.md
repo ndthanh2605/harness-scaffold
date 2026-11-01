@@ -163,7 +163,7 @@ fully met. Never advance status optimistically.
 | From | To | Gate |
 |---|---|---|
 | `todo` | `in_progress` | Agent creates workpad sibling, runs pull skill, begins implementation |
-| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, any plan deviations recorded and ratified (see Plan Deviation Protocol), PR linked, no uncommitted changes |
+| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, any plan deviations recorded and ratified (see Plan Deviation Protocol), PR linked, no uncommitted changes. The `harness-supervise` skill (L2, see Enforcement below) runs here — additive: the gate itself is unchanged, the human now receives a pre-triaged report alongside the PR. |
 | `human_review` | `merging` | Human approves PR |
 | `human_review` | `rework` | Human posts actionable feedback |
 | `rework` | `in_progress` | Agent resets workpad, re-implements |
@@ -269,9 +269,11 @@ what it always caught, including plus human review at the
   observation proves the claim is real) plus a fresh, independent agent
   re-verifying it — no external consumer required, a fresh fork with no
   shared context satisfies it. Mechanized by the `harness-supervise` skill
-  (tracked separately; see `docs/decisions/0008-tiered-enforcement.md`),
-  which may confirm or flag L0–L2 items only — it must escalate, never
-  resolve, anything that touches an L3 category below.
+  (`.claude/skills/harness-supervise/SKILL.md`; see
+  `docs/decisions/0008-tiered-enforcement.md`), invoked at the
+  `in_progress → human_review` transition, which may confirm or flag L0–L2
+  items only — it must escalate, never resolve, anything that touches an L3
+  category below.
 - **L3 — human confirmation.** Reserved for genuinely judgment-laden,
   not-mechanically-verifiable decisions: a deviation that changes a public
   interface/signature, swaps a dependency, or bends an architecture

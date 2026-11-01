@@ -1,0 +1,67 @@
+# US-003 Workpad
+
+<!-- This is the live execution log for the story. Mutate freely.
+     Do not store contract material here — that belongs in US-003.md. -->
+
+**Environment:** `harness-scaffold-8b:F:\Projects\harness-scaffold@10a8122` (branch `story/US-003-harness-supervise`)
+
+## Plan
+
+- [x] Step 1: Write `.claude/skills/harness-supervise/SKILL.md`.
+- [x] Step 2: Add the skill's path to `scripts/install-harness.sh`'s manifest.
+- [x] Step 3: Update `docs/HARNESS.md`'s L2 bullet and state-machine section to point at the real skill.
+- [x] Step 4: Run `scripts/harness-check.sh` and `scripts/validate.sh quick`, confirm green (exercised US-002's drift-check against the new file, both positive and negative).
+- [x] Step 5: Update `docs/TEST_MATRIX.md`.
+- [ ] Step 6: Commit via `harness-git-commit`, push branch via `harness-git-push`, open PR.
+
+## Acceptance Criteria
+
+- [x] `harness-supervise/SKILL.md` exists, matches house skill shape (frontmatter + Goal/Inputs/Steps/Output/Related Skills).
+- [x] Steps independently check Declared Files, Deviations ratified, rerun Validation, check Evidence substantiation.
+- [x] Output framed as a report ("Verified" / "Needs your decision"), never an approval.
+- [x] Explicit refusal to clear L3-category items — must escalate (Hard Boundary section + Step 5 of the skill).
+- [x] `docs/HARNESS.md` L2 bullet + state-machine section updated.
+- [x] `scripts/install-harness.sh` manifest includes the new skill.
+
+## Validation
+
+- [x] `bash -n scripts/install-harness.sh` — Result: `SYNTAX_OK`.
+- [x] `scripts/harness-check.sh` green with new skill present and listed. Result: `ok: harness-check passed — 3 story packet(s) validated, no violations.`
+- [x] Negative check: removed the manifest line for `harness-supervise/SKILL.md`, confirmed `scripts/harness-check.sh` fails (`FAIL: scripts/install-harness.sh: manifest is missing '.claude/skills/harness-supervise/SKILL.md' (shipped but not installed downstream)`, exit 1), restored, confirmed clean again.
+- [x] `scripts/validate.sh quick` green. Result: `=== validate:quick passed ===`, exit 0.
+
+## Deviations
+
+### D1 — Merge approval given in chat, not as a formal GitHub PR review (status: ratified)
+- Planned: `harness-git-land`'s step 1 checks for a GitHub `APPROVED` review via
+  `gh pr view --json reviews`.
+- Actual: `gh pr view` confirms no formal GitHub review exists; the maintainer's
+  approval ("ok, merge va tiep tuc") was given live in this session's chat instead.
+- Crosses invariant: not a code invariant — the house git-workflow contract
+  `harness-git-land` documents (a recorded GitHub review before merge).
+- Why: same root cause as US-002's D1 — this is a solo-maintainer repo where review
+  happens in conversation with the agent rather than via GitHub's review UI.
+- Resolution: ratified by the maintainer's explicit "merge and continue" in this
+  session, 2026-11-01. Proceeding to merge on that basis. Does not change
+  `harness-git-land` as a documented skill contract — a recurring pattern across
+  stories, not yet promoted to a harness-wide rule change (that would need its own
+  L3/Harness-Change-Policy decision, per the pattern noted after US-002's D1).
+
+## Notes
+
+- 2026-11-01: Story created (todo), workpad created, branch `story/US-003-harness-supervise` created from `main`@`10a8122`, transitioning to in_progress.
+- 2026-11-01: Synced with origin/main. Result: clean. HEAD: 10a8122
+- 2026-11-01: Committed (`069c776`). Dogfooded the new `harness-supervise` skill on this
+  story itself via a fresh, no-shared-context agent. Report: Verified all L0-L2 items
+  (Declared Files, Deviations, three independent reruns including the negative
+  drift-check fixture, Evidence/TEST_MATRIX claims). Needs-your-decision: (1) the
+  `docs/HARNESS.md` state-machine/L2-bullet edits, correctly flagged since they touch
+  feature-workflow/enforcement text — maintainer confirmed ok, both are direct
+  implementations of already-Accepted Decision 0008 item 6, no new authority introduced;
+  (2) story `## Evidence` still placeholder and PR not yet linked — true at the time,
+  being completed now; (3) `docs/TEST_MATRIX.md` row said `implemented` while story was
+  still `in_progress` — real bug, fixed (reverted to `in_progress`, will flip at `done`).
+
+## Confusions
+
+<!-- only include when something was genuinely unclear during execution -->
