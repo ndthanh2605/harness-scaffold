@@ -108,9 +108,18 @@ Before doing any implementation work, output a short report in this exact format
 **Hard gate:** <yes — <which one> | no>
 **Story:** <path/to/story.md — status: <status>> | proposed: <title>
 **v0 constraint:** <clear | violation: <description>>
+**Relevant principles:** <principle-* skills that apply to this lane — see below>
 
 **Cleared to proceed:** <yes | no — reason>
 ```
+
+Lane-to-principle mapping (cite by name, do not inline their content):
+
+| Lane | Relevant principles |
+|------|----------------------|
+| tiny | `principle-default-posture` (no story/workpad, so this is the only one with a surface) |
+| normal | `principle-default-posture`, `principle-invariant-markers`, `principle-plan-deviation` |
+| high-risk | all of the above, plus `principle-enforcement-tiers` (hard gates and L3 categories are most load-bearing here) |
 
 Do not begin implementation until the report is written and, for high-risk
 requests, the human has acknowledged it.
@@ -126,6 +135,13 @@ If proceeding:
 - If story is already `in_progress`: confirm you are the intended continuation
   (check workpad Notes for prior agent context).
 - If story is `blocked`: do not proceed without human resolution of the blocker.
+
+At the `in_progress → human_review` transition, invoke `harness-supervise`
+(a fresh, no-shared-context invocation) before presenting the PR — it
+mechanizes the L2 enforcement tier (see `principle-enforcement-tiers`) by
+independently re-verifying Declared Files, Deviations, Validation, and
+Evidence, and reports what still needs a human decision rather than
+approving on your behalf.
 
 ---
 

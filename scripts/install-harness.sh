@@ -369,6 +369,10 @@ CLAUDE.md
 .claude/skills/harness-git-pull/SKILL.md
 .claude/skills/harness-git-land/SKILL.md
 .claude/skills/harness-supervise/SKILL.md
+.claude/skills/principle-plan-deviation/SKILL.md
+.claude/skills/principle-invariant-markers/SKILL.md
+.claude/skills/principle-default-posture/SKILL.md
+.claude/skills/principle-enforcement-tiers/SKILL.md
 README.md
 docs/ARCHITECTURE.md
 docs/FEATURE_INTAKE.md

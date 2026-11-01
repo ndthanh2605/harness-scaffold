@@ -1,0 +1,64 @@
+# US-004 Workpad
+
+<!-- This is the live execution log for the story. Mutate freely.
+     Do not store contract material here — that belongs in US-004.md. -->
+
+**Environment:** `harness-scaffold-8b:F:\Projects\harness-scaffold@c53224e` (branch `story/US-004-intake-router-principles`)
+
+## Plan
+
+- [x] Step 1: Write the four `principle-*/SKILL.md` files.
+- [x] Step 2: Add the four paths to `scripts/install-harness.sh`'s manifest.
+- [x] Step 3: Add `**Relevant principles:**` line to `harness-intake`'s Intake Report format + a `harness-supervise` note near Step 7.
+  - Found and fixed a self-introduced markdown bug: the edit left a stray,
+    unmatched closing ` ``` ` fence after the new lane-mapping table (the
+    original fence closed correctly right after the report template; my
+    insertion appended more content, including a second, orphaned fence,
+    after it). Fixed by removing the stray fence — not a plan deviation
+    (no invariant crossed, same file, caught and fixed before any commit).
+- [x] Step 4: Ran `scripts/harness-check.sh` and `scripts/validate.sh quick` — green. Also ran a negative check (removed `principle-enforcement-tiers` from the manifest, confirmed FAIL, restored, confirmed clean).
+- [x] Step 5: Updated `docs/TEST_MATRIX.md`.
+- [x] Step 6: Committed (`b2e7eae`), dogfooded `harness-supervise` (clean report), pushed, opened PR #3.
+
+## Acceptance Criteria
+
+- [x] Four skills exist with `disable-model-invocation: true`.
+- [x] Each short, pointing back to `docs/HARNESS.md`.
+- [x] `harness-intake`'s 7 steps unchanged; Intake Report gains Relevant-principles line.
+- [x] Manifest includes all four new paths.
+- [x] Drift-check passes with all four present and listed.
+
+## Validation
+
+- [x] `bash -n scripts/install-harness.sh` — Result: `SYNTAX_OK`.
+- [x] `scripts/harness-check.sh` green with all four present and listed. Result: `ok: harness-check passed — 4 story packet(s) validated, no violations.`
+- [x] Negative check: removed `principle-enforcement-tiers` manifest line, confirmed `FAIL: ... manifest is missing '.claude/skills/principle-enforcement-tiers/SKILL.md' (shipped but not installed downstream)`, exit 1; restored, clean.
+- [x] `scripts/validate.sh quick` green. Result: `=== validate:quick passed ===`, exit 0.
+
+## Deviations
+
+### D1 — Merge approval given in chat, not as a formal GitHub PR review (status: ratified)
+- Same pattern as US-002 D1 and US-003 D1; see `docs/HARNESS_BACKLOG.md` →
+  "Formal Merge-Approval Mechanism Doesn't Match Solo-Maintainer Reality".
+- Resolution: ratified by the maintainer's "ok" in this session, 2026-11-01.
+
+## Notes
+
+- 2026-11-01: Story created (todo), workpad created, branch `story/US-004-intake-router-principles` created from `main`@`c53224e`, transitioning to in_progress.
+- 2026-11-01: Synced with origin/main. Result: clean. HEAD: c53224e
+- 2026-11-01: Committed (`b2e7eae`). Dogfooded `harness-supervise` on this story itself
+  via a fresh, no-shared-context agent (ran all four negative-manifest fixtures in a
+  throwaway clone, left the real repo untouched). Verified: Declared Files exact match,
+  no open deviations, unit/integration/E2E reruns all matched claims, both ACs about
+  `disable-model-invocation` and short-distillation-with-pointer confirmed, harness-intake
+  diff purely additive (+16/-0, step order intact), L3 scan found nothing. Two non-blocking
+  minor notes: `principle-enforcement-tiers` has a small duplicate of the L3 category list
+  (acceptable per the story's own invariant), and `principle-default-posture` inherits
+  `HARNESS.md`'s existing "pull skill" wording instead of the real skill name
+  `harness-git-pull` (pre-existing wording bug, not introduced here — candidate backlog item).
+  Needs-your-decision: only the expected "not yet pushed, no PR, Evidence still placeholder" —
+  true at the time, now being completed. Pushed, opened PR #3.
+
+## Confusions
+
+<!-- only include when something was genuinely unclear during execution -->
