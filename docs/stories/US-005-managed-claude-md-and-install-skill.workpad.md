@@ -68,7 +68,8 @@
 ### D2 — same pattern as US-002/US-003/US-004 D1 (status: ratified)
 - Merge approval given in chat, not as a formal GitHub PR review. See
   `docs/HARNESS_BACKLOG.md` → "Formal Merge-Approval Mechanism Doesn't Match
-  Solo-Maintainer Reality". Will be recorded here once given.
+  Solo-Maintainer Reality". Resolution: ratified by the maintainer's "ok" in
+  this session, 2026-11-01.
 
 ## Notes
 
