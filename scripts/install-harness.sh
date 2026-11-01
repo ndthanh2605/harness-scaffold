@@ -388,6 +388,9 @@ docs/decisions/0003-generic-spec-intake-harness.md
 docs/decisions/0004-execution-state-machine.md
 docs/decisions/0005-plan-deviation-protocol.md
 docs/decisions/0006-config-driven-validation.md
+docs/decisions/0007-overlay-authority-and-explicit-invocation.md
+docs/decisions/0008-tiered-enforcement.md
+docs/decisions/0009-retire-pr-gate.md
 docs/decisions/README.md
 docs/product/README.md
 docs/stories/README.md
