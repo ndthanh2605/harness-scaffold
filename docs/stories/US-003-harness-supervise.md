@@ -2,7 +2,7 @@
 
 ## Status
 
-in_progress
+human_review
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-003.workpad.md from template, runs pull skill, begins implementation
@@ -152,4 +152,21 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
-Add commands, reports, screenshots, or links after validation exists.
+- PR: https://github.com/ndthanh2605/harness-scaffold/pull/2
+- Commits: `069c776` (skill + wiring), `0841941` (test-matrix fix + dogfood record).
+- `bash -n scripts/install-harness.sh` → syntax OK.
+- `bash scripts/harness-check.sh` on real repo state → `ok: harness-check
+  passed — 3 story packet(s) validated, no violations.` (exit 0).
+- Negative check: removed the new skill's manifest line → `FAIL: ...
+  manifest is missing '.claude/skills/harness-supervise/SKILL.md' (shipped
+  but not installed downstream)` (exit 1); restored, reran clean.
+- `bash scripts/validate.sh quick` → `=== validate:quick passed ===` (exit 0).
+- Dogfood: a fresh, no-shared-context agent ran `harness-supervise` against
+  this story itself (full report in the workpad Notes). Verified all L0-L2
+  items independently (including rerunning the negative drift-check fixture
+  in its own scratch copy of the repo). Flagged two `docs/HARNESS.md` edits
+  for human decision (correct behavior — they touch state-machine/enforcement
+  text); maintainer confirmed both are direct implementations of the
+  already-accepted Decision 0008 item 6. Also caught a real desync
+  (`docs/TEST_MATRIX.md` said `implemented` while status was still
+  `in_progress`) — fixed in `0841941`.
