@@ -2,7 +2,7 @@
 
 ## Status
 
-merging
+done
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-004.workpad.md from template, runs pull skill, begins implementation
@@ -140,6 +140,7 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
+- Merged: https://github.com/ndthanh2605/harness-scaffold/pull/3 at `a9f25fd` on 2026-11-01.
 - PR: https://github.com/ndthanh2605/harness-scaffold/pull/3
 - Commit: `b2e7eae`.
 - `bash -n scripts/install-harness.sh` → syntax OK.
