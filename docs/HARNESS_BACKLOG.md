@@ -48,6 +48,58 @@ proposed | accepted | implemented | rejected
 
 ### Title
 
+Formal Merge-Approval Mechanism Doesn't Match Solo-Maintainer Reality
+
+### Discovered While
+
+US-002 and US-003 (2026-11-01) — both stories hit the same gap independently.
+
+### Current Pain
+
+`harness-git-land`'s step 1 requires a GitHub `APPROVED` PR review before
+merging. In practice, review on this repo happens live in chat with the
+agent, not via GitHub's review UI — there is no second human reviewer, and
+the maintainer approves verbally ("ok, merge"). Both US-002 (which skipped
+the PR step entirely, D1) and US-003 (which opened a PR but had no formal
+GitHub review, D1) had to record a ratified deviation for the same reason.
+Recording the same deviation every story is honest but repetitive, and the
+skill contract increasingly describes a process that doesn't match how this
+repo is actually used.
+
+### Evidence
+
+Two independent occurrences of the identical gap: `docs/stories/US-002-
+tiered-enforcement-foundations.workpad.md` D1 (direct-to-main push, no PR)
+and `docs/stories/US-003-harness-supervise.workpad.md` D1 (PR opened, no
+formal GitHub review, chat approval instead). Same root cause both times,
+confirmed by `gh pr view --json reviews` returning no approved review on a
+PR the maintainer had already approved in chat.
+
+### Suggested Improvement
+
+Either (a) update `harness-git-land`'s step 1 to accept an explicit
+"approved in chat" substitute — e.g. require the agent to quote the
+maintainer's verbatim approval message in the workpad instead of a GitHub
+review object, or (b) decide this repo's actual convention is direct-to-main
+for a solo maintainer and formally retire the PR-based gate in
+`harness-git-push`/`harness-git-land`. Either is a change to the documented
+feature workflow (Harness Change Policy L3) and needs the maintainer's
+explicit decision, not an agent's unilateral choice — this item only
+proposes it.
+
+### Risk
+
+Normal — touches two existing skill contracts, no application code.
+Testable by running a story through the chosen convention end-to-end.
+
+### Status
+
+proposed
+
+## Missing Harness Capability
+
+### Title
+
 Git Worktree Isolation Per Story (Autonomous Multi-Agent Support)
 
 ### Discovered While
