@@ -116,6 +116,7 @@ CLAUDE.md
 global-skills/harness-install/SKILL.md
 .claude/skills/harness-intake/SKILL.md
 .claude/skills/harness-intake/references/pstack-routing.md
+scripts/install-harness.sh
 docs/TEST_MATRIX.md
 docs/stories/US-005-managed-claude-md-and-install-skill.md
 docs/stories/US-005-managed-claude-md-and-install-skill.workpad.md

@@ -28,17 +28,64 @@
 
 ## Validation
 
-- [x] `bash -n scripts/install-harness.sh` — Result: `SYNTAX_OK` (confirms unchanged beyond the two added manifest lines).
+- [x] `bash -n scripts/install-harness.sh` — Result: `SYNTAX_OK` (confirms unchanged beyond the one added manifest line for `pstack-routing.md` — see D1, this file was touched but not originally declared).
 - [x] `scripts/harness-check.sh` green with `global-skills/` and the new `references/` file present. Result: `ok: harness-check passed — 5 story packet(s) validated, no violations.`
 - [x] Manual merge simulation (scratchpad, not a real repo): first-install append preserves pre-existing content byte-identical (`diff` confirmed), re-merge replaces only the marker span (pre-existing content still byte-identical, block content updated, exactly one BEGIN/END pair).
+  - First run's scratch artifacts were deleted immediately after, which the
+    `harness-supervise` dogfood run correctly flagged as unverifiable by
+    rerun — it does not count as proof by the skill's own standard.
+  - Re-ran the identical simulation fresh (commands above, unchanged) and
+    **kept the artifacts this time** at a scratchpad path recorded below, so
+    a reviewer can independently reverify without re-deriving the commands:
+    `block_lines=100 total_lines=100` (the whole file is the block, since
+    this repo's `CLAUDE.md` has no project-specific content outside it
+    yet), `APPEND_OK_IDENTICAL`, `REMERGE_OK_IDENTICAL`, exactly one
+    `HARNESS:BEGIN`/`HARNESS:END` pair after the re-merge, and the updated
+    block content (`Harness v0.1`) present exactly once.
 - [x] `scripts/validate.sh quick` green. Result: `=== validate:quick passed ===`, exit 0.
 
 ## Deviations
 
-None.
+### D1 — Touched `scripts/install-harness.sh` without declaring it (status: ratified)
+- Planned: `## Declared Files` listed `CLAUDE.md`, `global-skills/harness-install/
+  SKILL.md`, `.claude/skills/harness-intake/SKILL.md`,
+  `.claude/skills/harness-intake/references/pstack-routing.md`,
+  `docs/TEST_MATRIX.md`, and the story/workpad — `scripts/install-harness.sh`
+  was not listed.
+- Actual: added one manifest line to `scripts/install-harness.sh` so
+  `pstack-routing.md` (a declared file) is actually shipped downstream. This
+  is the same, already-established pattern as US-003 and US-004 (every new
+  skill/reference file needs a manifest line) but was missed when writing
+  this story's Declared Files.
+- Crosses invariant: an undeclared touched file — a Stop Condition per
+  `docs/HARNESS.md`'s Plan Deviation Protocol.
+- Why: an authoring oversight when scoping the story — caught by the
+  `harness-supervise` dogfood run on this commit, not by the implementing
+  agent before committing.
+- Resolution: `## Declared Files` corrected to add `scripts/install-harness.sh`.
+  Ratified by the maintainer in chat, 2026-11-01.
+
+### D2 — same pattern as US-002/US-003/US-004 D1 (status: ratified)
+- Merge approval given in chat, not as a formal GitHub PR review. See
+  `docs/HARNESS_BACKLOG.md` → "Formal Merge-Approval Mechanism Doesn't Match
+  Solo-Maintainer Reality". Will be recorded here once given.
 
 ## Notes
 
+- 2026-11-01: Dogfooded `harness-supervise` on the implementation commit via a
+  fresh, no-shared-context agent. Verified: CLAUDE.md diff is +8/-0, no deletions
+  or reordering (self-checked independently, not taken on faith), extracted block
+  line count matches file total, harness-install SKILL.md copied identically to
+  `~/.claude/skills/harness-install/`, pstack-routing.md has all 5 touchpoints with
+  fallbacks and the explicit never-block rejection, harness-intake only references
+  it by path. Found two real gaps: (1) `scripts/install-harness.sh` was touched
+  (one manifest line for pstack-routing.md) without being declared — recorded as
+  D1, ratified; (2) the first manual merge-simulation's scratch artifacts were
+  deleted before the dogfood run, making that evidence unrerunnable by the skill's
+  own standard — re-ran the simulation fresh and kept the artifacts this time (see
+  Validation above). Correctly escalated two items rather than resolving them:
+  the CLAUDE.md ownership-comment (traces to Decision 0007, already Accepted) and
+  the Declared Files gap (D1) — maintainer confirmed both ok in chat, 2026-11-01.
 - 2026-11-01: Story created (todo), workpad created, branch
   `story/US-005-managed-claude-md-and-install-skill` created from
   `main`@`1371283`, transitioning to in_progress.
