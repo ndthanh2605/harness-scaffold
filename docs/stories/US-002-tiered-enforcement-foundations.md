@@ -2,7 +2,7 @@
 
 ## Status
 
-in_progress
+done
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-002.workpad.md from template, runs pull skill, begins implementation
@@ -163,4 +163,37 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
-Add commands, reports, screenshots, or links after validation exists.
+- Commits: `ba60f77` (accepts ADR 0007/0008), `1e6edc5` (implements this story).
+  Pushed directly to `origin/main` (no PR) per workpad Deviation D1, ratified by
+  the maintainer 2026-11-01.
+- `bash -n scripts/harness-check.sh` → syntax OK.
+- `bash scripts/harness-check.sh` on real repo state → `ok: harness-check passed
+  — 2 story packet(s) validated, no violations.` (exit 0).
+- Seeded a skill file absent from the manifest
+  (`.claude/skills/__drift-test__/SKILL.md`) → `FAIL: ... manifest is missing
+  '.claude/skills/__drift-test__/SKILL.md'` (exit 1); removed, reran clean.
+- Seeded a manifest entry pointing to a nonexistent file (temp edit to
+  `scripts/install-harness.sh`, restored byte-identical via `diff -q` after) →
+  `FAIL: ... manifest entry '.claude/skills/does-not-exist/SKILL.md' does not
+  exist in this repo` (exit 1); restored, reran clean.
+- `bash scripts/validate.sh quick` → `=== validate:quick passed ===` (exit 0).
+- Independent fresh-reviewer pass (no shared context) against the commit range,
+  this story's AC/Invariants, and Decision 0008 items 1–5: 0 Critical, 3
+  Important (story/workpad state-sync gaps and a stale `HARNESS_BACKLOG.md`
+  status line — all fixed in this same pass), 5 Minor (deferred, not fixed per
+  `superpowers:executing-plans` discipline):
+  - `docs/HARNESS.md`'s Enforcement paragraph has an awkward phrase ("including
+    plus human review") — cosmetic, meaning still clear.
+  - The drift-check's `find -mindepth 2 -maxdepth 2` only reaches one directory
+    level (`.claude/skills/<name>/SKILL.md`), not arbitrarily nested
+    `**/SKILL.md` as the AC's shorthand implies — matches how Claude Code
+    actually discovers skills today, so no real gap yet.
+  - The reverse-direction check only flags manifest entries ending in
+    `SKILL.md`; a missing non-`SKILL.md` file under `.claude/skills/` in the
+    manifest would pass silently (none exist today).
+  - `docs/HARNESS.md`'s L2 description reads as binding today even though
+    `harness-supervise` (which mechanizes it) doesn't exist until a later
+    story; this story's own evidence above is manual, not supervisor-verified.
+  - The manifest-extraction awk pattern relies on line-ending handling that
+    holds on this MSYS/Windows checkout and on LF-checked-out Linux, but was
+    not tested against a literal CRLF checkout on a non-MSYS shell.

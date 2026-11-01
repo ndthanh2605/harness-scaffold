@@ -175,13 +175,26 @@ Normal — touches only the installer script's file list, no application code.
 Testable by running the installer into an empty target and diffing the result
 against the scaffold's tracked files.
 
+### Evidence
+
+`scripts/harness-check.sh` now asserts manifest⇄filesystem parity in both
+directions (US-002, 2026-11-01): it fails on a seeded skill file missing from
+the manifest and on a seeded manifest entry pointing to a file that doesn't
+exist, and passes on the real, in-sync repo state. Independently re-verified
+by a fresh reviewer agent with no shared context (both fixtures reproduced
+and confirmed, 2026-11-01) — satisfies Decision 0008's L2 gate.
+
 ### Status
 
 partially implemented — the immediate breakage is fixed (2026-06-26, ratified
 deviation during the validation-layer work): the stale `{commit,land,pull,push}.md`
 entries are replaced with the current `harness-*/SKILL.md` skills, and the missing
 decision records (0005, 0006) were added; installer now runs clean into an empty
-target. **Still open:** deriving the manifest from a glob / tracked MANIFEST so it
-cannot drift again (the root cause). `harness-check.sh` does not yet assert
-manifest⇄filesystem parity.
+target. The drift-detection gap is now closed (US-002, 2026-11-01):
+`harness-check.sh` asserts manifest⇄filesystem parity in both directions, so a
+future drift is caught mechanically instead of silently recurring. **Still
+open:** deriving the manifest from a glob / tracked MANIFEST file is not
+done — the heredoc list in `scripts/install-harness.sh` remains hand-maintained,
+so the check detects drift after the fact rather than preventing it
+structurally. That root-cause item stays open.
 

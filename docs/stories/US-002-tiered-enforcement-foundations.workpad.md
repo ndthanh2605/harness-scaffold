@@ -20,7 +20,7 @@
   - [x] 3.4 Verified it passes on the real, in-sync repo state (both before and after the fixture tests).
 - [x] Step 4: Ran `scripts/validate.sh quick` — green.
 - [x] Step 5: Updated `docs/TEST_MATRIX.md` with a US-002 row.
-- [ ] Step 6: Commit via `harness-git-commit` skill.
+- [x] Step 6: Committed via `harness-git-commit` skill (`ba60f77`, `1e6edc5`), pushed directly to `origin/main` per D1.
 
 ## Acceptance Criteria
 
@@ -41,7 +41,27 @@
 
 ## Deviations
 
-None.
+### D1 — Implemented and committed directly on `main` instead of a feature branch (status: ratified)
+- Planned: implicit — the house `harness-git-push`/`harness-git-land` skills and the
+  state machine's `in_progress → human_review` gate ("PR linked") assume commits
+  happen on a feature branch, reviewed via PR before merge.
+- Actual: both commits (`ba60f77`, `1e6edc5`) were made directly on `main`, which was
+  the checked-out branch at session start. No feature branch was created first.
+  `main` was pushed directly to `origin/main` (now at `1e6edc5`) per the ratified
+  resolution below, with no PR opened.
+- Crosses invariant: not a code/interface invariant, but the implicit git-workflow
+  contract `harness-git-push`'s own docs state ("Inputs: commits on a feature
+  branch") and the state machine's PR-linked gate.
+- Why: this session started already on `main` (from the pre-existing git status
+  context) and no feature-branch creation step was in the workpad Plan. Noticed only
+  when reaching the push step and reading `harness-git-push`'s SKILL.md, by which
+  point two commits already existed locally.
+- Resolution: ratified by the maintainer, 2026-11-01 — push `main` directly, no PR,
+  for this story. The `in_progress → human_review → merging` gate's "PR linked" /
+  "human approves PR" requirement is satisfied by this live, explicit approval
+  instead of a GitHub PR review. Does not change `harness-git-push`/`harness-git-land`
+  as documented skill contracts — this is a one-story exception, not a harness-wide
+  policy change (that would itself be an L3/Harness-Change-Policy decision).
 
 <!-- Rulings (not deviations — no invariant crossed, no file outside Declared Files touched):
 - Ruling: executing-plans' generic sdd-workspace/task-start/task-done tooling and worktree
@@ -66,6 +86,8 @@ None.
 
 - 2026-11-01: Story created (todo), workpad created, transitioning to in_progress. Execution method: Native (per superpowers:writing-plans handoff, maintainer's choice).
 - 2026-11-01: Synced with origin/main. Result: clean. HEAD: 0c3ea51
+- 2026-11-01: Committed (`ba60f77` ADRs, `1e6edc5` implementation) and pushed `main` to `origin/main` directly, no PR — see D1.
+- 2026-11-01: Final review by a fresh reviewer agent (no shared context) against the commit range, this story's AC/Invariants, and Decision 0008: 0 Critical, 3 Important (all fixed: story status/Evidence sync, D1 staleness, HARNESS_BACKLOG.md stale text), 5 Minor (deferred — see story Evidence section).
 
 ## Confusions
 
