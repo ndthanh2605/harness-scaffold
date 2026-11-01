@@ -364,6 +364,7 @@ while IFS= read -r relative; do
 done <<'EOF'
 CLAUDE.md
 .claude/skills/harness-intake/SKILL.md
+.claude/skills/harness-intake/references/pstack-routing.md
 .claude/skills/harness-git-commit/SKILL.md
 .claude/skills/harness-git-push/SKILL.md
 .claude/skills/harness-git-pull/SKILL.md
