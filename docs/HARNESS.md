@@ -244,24 +244,55 @@ longer matches reality and you could proceed — but must not silently cross an
 invariant. A deviation may escalate to `blocked` if the crossing change is the
 only way forward.
 
-**Enforcement.** Two layers, plus human review at the
-`in_progress → human_review` gate:
+**Enforcement.** Enforcement runs through four named levels — never let a
+weaker level imply a stronger one. The goal is cheaper gates wherever one
+catches the same failure, not fewer gates: every level below still catches
+what it always caught, including plus human review at the
+`in_progress → human_review` gate.
 
-- **Structural (always on).** `scripts/harness-check.sh` — the base of
-  `validate:quick` — fails when a `done` story still carries an unratified (`open`)
-  deviation in its workpad, and checks that `## Declared Files` fences parse. This
-  needs no product code, so it runs even in a harness-only repo.
-- **Source markers (opt-in, project-level).** `.harness/deviation-scan` (shipped as
-  `.harness/deviation-scan.example`) is a language-agnostic gate that fails on
-  workaround markers added without a `DEVIATION:` note and on new source files
-  missing from the active story's `## Declared Files`. A project enables it by
-  copying the example and wiring it into its `.harness/quick` hook.
+- **L0 — structural/mechanical (always on).** `scripts/harness-check.sh` —
+  the base of `validate:quick` — fails when a `done` story still carries an
+  unratified (`open`) deviation in its workpad, checks that `## Declared
+  Files` fences parse, and checks that the install manifest
+  (`scripts/install-harness.sh`) and this repo's shipped
+  `.claude/skills/**/SKILL.md` files agree in both directions. This needs no
+  product code, so it runs even in a harness-only repo.
+- **L1 — source markers (opt-in, project-level).** `.harness/deviation-scan`
+  (shipped as `.harness/deviation-scan.example`) is a language-agnostic gate
+  that fails on workaround markers added without a `DEVIATION:` note and on
+  new source files missing from the active story's `## Declared Files`. A
+  project enables it by copying the example and wiring it into its
+  `.harness/quick` hook.
+- **L2 — evidence + independent rerun.** A claimed improvement, a
+  `HARNESS_BACKLOG.md` item closing, or a story reaching
+  `in_progress → human_review` requires a recorded `Evidence` field (what
+  observation proves the claim is real) plus a fresh, independent agent
+  re-verifying it — no external consumer required, a fresh fork with no
+  shared context satisfies it. Mechanized by the `harness-supervise` skill
+  (tracked separately; see `docs/decisions/0008-tiered-enforcement.md`),
+  which may confirm or flag L0–L2 items only — it must escalate, never
+  resolve, anything that touches an L3 category below.
+- **L3 — human confirmation.** Reserved for genuinely judgment-laden,
+  not-mechanically-verifiable decisions: a deviation that changes a public
+  interface/signature, swaps a dependency, or bends an architecture
+  constraint (see "What counts as a deviation" above), and all five
+  categories in `CLAUDE.md`'s Harness Change Policy — architecture
+  direction, removing or weakening a validation requirement, changing the
+  source-of-truth hierarchy, changing risk classification rules, and
+  replacing the feature workflow. This list cannot demote itself, or any of
+  the five Harness Change Policy categories, to a lower level without going
+  through this same L3 gate.
+
+Mechanically checkable deviations (an undeclared file, a workaround marker
+without a `DEVIATION:` note) stay caught at L0/L1 as above — no change there.
+Deviations that are hard to verify by pattern-matching stay at L3, unchanged.
 
 Beyond these, recording deviations honestly remains the agent's responsibility; a
 richer durable surface (a `harness-cli` deviation/intervention record + a
 `story verify` gate) stays the future option in `docs/HARNESS_BACKLOG.md`. See
-`docs/decisions/0005-plan-deviation-protocol.md` and
-`docs/decisions/0006-config-driven-validation.md`.
+`docs/decisions/0005-plan-deviation-protocol.md`,
+`docs/decisions/0006-config-driven-validation.md`, and
+`docs/decisions/0008-tiered-enforcement.md`.
 
 ### Blocked-Access Escape Hatch
 
@@ -279,6 +310,14 @@ The harness grows from friction.
 When an agent is confused, repeats manual reasoning, needs a new validation
 command, discovers a missing rule, or sees a recurring failure pattern, it must
 either improve the harness directly or add a proposal to `HARNESS_BACKLOG.md`.
+
+Editable harness surfaces are a closed, named list: skills (`.claude/skills/`),
+docs, templates (`docs/templates/`), validation hooks (`.harness/`), and
+decision records (`docs/decisions/`) — explicitly **not** application source,
+per the v0 scope rule above. A `HARNESS_BACKLOG.md` proposal must state its
+change as a diff against one of these named surfaces, not free prose, and must
+carry an `Evidence` field proving the friction is real (see
+`docs/decisions/0008-tiered-enforcement.md`).
 
 ## Validation Ladder
 

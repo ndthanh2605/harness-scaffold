@@ -95,6 +95,32 @@ if [ -f docs/HARNESS.md ]; then
   done < <(grep -oE 'docs/decisions/[0-9]{4}-[a-z0-9-]+\.md' docs/HARNESS.md | sort -u)
 fi
 
+# --- Install manifest ⇄ shipped skills drift (Decision 0008 L0) ---------------
+# Both directions: every shipped SKILL.md must be in the manifest, and every
+# manifest entry under .claude/skills/ must point to a file that exists.
+if [ -f scripts/install-harness.sh ]; then
+  mapfile -t manifest_entries < <(awk '
+    /^done <<.EOF.$/ { capture=1; next }
+    capture && /^EOF$/ { capture=0; next }
+    capture { print }
+  ' scripts/install-harness.sh)
+
+  mapfile -t manifest_skill_entries < <(printf '%s\n' "${manifest_entries[@]:-}" | grep -E '^\.claude/skills/.*SKILL\.md$' || true)
+
+  mapfile -t actual_skill_files < <(find .claude/skills -mindepth 2 -maxdepth 2 -name 'SKILL.md' 2>/dev/null | sort)
+
+  for sf in "${actual_skill_files[@]:-}"; do
+    [ -n "$sf" ] || continue
+    printf '%s\n' "${manifest_skill_entries[@]:-}" | grep -qxF "$sf" \
+      || viol "scripts/install-harness.sh: manifest is missing '$sf' (shipped but not installed downstream)"
+  done
+
+  for me in "${manifest_skill_entries[@]:-}"; do
+    [ -n "$me" ] || continue
+    [ -f "$me" ] || viol "scripts/install-harness.sh: manifest entry '$me' does not exist in this repo"
+  done
+fi
+
 # --- Test matrix shape ---------------------------------------------------------
 if [ -f docs/TEST_MATRIX.md ]; then
   grep -qE '^## Matrix'                 docs/TEST_MATRIX.md || viol "docs/TEST_MATRIX.md: missing '## Matrix' section"

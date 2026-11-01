@@ -20,6 +20,15 @@ Task or story that exposed the gap.
 
 What was hard, repeated, ambiguous, or unsafe?
 
+### Evidence
+
+What observation proves this pain point is real, not a hunch (a reproduced
+failure, a repeated transcript pattern, a specific friction moment — not "this
+seems like it would help"). When moving to `implemented`, append what an
+independent rerun (a fresh agent with no shared context, per
+`docs/decisions/0008-tiered-enforcement.md`'s L2) confirmed the fix actually
+worked.
+
 ### Suggested Improvement
 
 What should be added or changed?

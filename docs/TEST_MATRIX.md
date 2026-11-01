@@ -22,6 +22,7 @@ implemented until tests or validation evidence exist.
 | TBD | Add rows when story packets are created | no | no | no | no | planned | none |
 | harness-execution-layer | Execution state machine, workpad sibling, git workflow skills present | no | no | no | yes | implemented | grep proofs in docs/superpowers/plans/2026-05-16-symphony-execution-layer.md Task 8 |
 | harness-validation-layer | Language-agnostic validate.sh runner, harness-check.sh self-check, new-story.sh scaffolder; unconfigured rungs fail honestly | no | no | no | yes | implemented | scripts/harness-check.sh exit 0 on repo; validate.sh quick green, validate.sh e2e non-zero; harness-check red on broken fixture; ADR-0006 |
+| US-002 (tiered-enforcement-foundations) | L0-L3 enforcement taxonomy named in HARNESS.md, Plan Deviation Protocol and Harness Change Policy categories re-tiered, Evidence field required in HARNESS_BACKLOG.md, closed editable-surfaces list in Growth Rule, install-manifest drift-check in both directions | no | no | no | yes | implemented | harness-check.sh red on seeded missing-from-manifest fixture and on seeded manifest-points-nowhere fixture, green on real repo state; validate.sh quick green; ADR-0007, ADR-0008 |
 
 ## Evidence Rules
 
