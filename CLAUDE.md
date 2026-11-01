@@ -1,3 +1,10 @@
+<!-- HARNESS:BEGIN -->
+<!-- Managed by the harness-install skill (docs/decisions/0007). Content
+     inside these markers is owned by the harness-scaffold template and is
+     overwritten on reinstall/update — do not hand-edit it expecting the
+     change to survive an update without recording a deviation. Content
+     outside these markers (above or below) is yours: add project-specific
+     instructions there and they are never touched by harness-install. -->
 # Agent Operating Guide
 
 This repository is in Harness v0. There is no product implementation yet.
@@ -90,3 +97,4 @@ A task is done only when:
   → `## Validation Ladder`.
 - Missing harness capabilities were added to `docs/HARNESS_BACKLOG.md`.
 - The final response says what changed and what was not attempted.
+<!-- HARNESS:END -->

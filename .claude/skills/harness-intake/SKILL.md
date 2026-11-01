@@ -136,6 +136,11 @@ If proceeding:
   (check workpad Notes for prior agent context).
 - If story is `blocked`: do not proceed without human resolution of the blocker.
 
+For agents with the optional `pstack` plugin installed, `references/
+pstack-routing.md` maps a small, named set of harness-workflow moments to
+specific `pstack` skills — soft and optional throughout; every harness
+behavior works correctly without it.
+
 At the `in_progress → human_review` transition, invoke `harness-supervise`
 (a fresh, no-shared-context invocation) before presenting the PR — it
 mechanizes the L2 enforcement tier (see `principle-enforcement-tiers`) by
