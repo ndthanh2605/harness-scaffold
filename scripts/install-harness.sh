@@ -368,6 +368,7 @@ CLAUDE.md
 .claude/skills/harness-git-push/SKILL.md
 .claude/skills/harness-git-pull/SKILL.md
 .claude/skills/harness-git-land/SKILL.md
+.claude/skills/harness-supervise/SKILL.md
 README.md
 docs/ARCHITECTURE.md
 docs/FEATURE_INTAKE.md
