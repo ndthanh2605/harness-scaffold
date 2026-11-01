@@ -239,6 +239,21 @@ exist, and passes on the real, in-sync repo state. Independently re-verified
 by a fresh reviewer agent with no shared context (both fixtures reproduced
 and confirmed, 2026-11-01) — satisfies Decision 0008's L2 gate.
 
+**The root cause recurred for real, not just hypothetically (2026-11-01):**
+testing `install-harness.sh` against an actual external project
+(`F:\Projects\LeanGoes-Dict`) found `docs/decisions/0007`, `0008`, and `0009`
+missing from the manifest — each added across US-002 through US-006 without
+the manifest being updated, exactly the drift this item describes, just for
+decision records instead of skills. `harness-check.sh`'s existing "decision
+records referenced in HARNESS.md must exist" check did not catch this,
+because it only checks the file exists in the *source* repo, not that it is
+*in the manifest* — a target installed with the stale manifest failed
+immediately on its own `harness-check.sh` run. Fixed as a tiny-lane patch
+(three manifest lines), but the pattern has now recurred for two different
+kinds of shipped files (skills, decisions) across six stories — strengthens
+the case for deriving the manifest mechanically rather than hand-maintaining
+it, per the still-open "Suggested Improvement" below.
+
 ### Status
 
 partially implemented — the immediate breakage is fixed (2026-06-26, ratified
