@@ -2,7 +2,7 @@
 
 ## Status
 
-in_progress
+human_review
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-005.workpad.md from template, runs pull skill, begins implementation
@@ -160,4 +160,32 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
-Add commands, reports, screenshots, or links after validation exists.
+- PR: https://github.com/ndthanh2605/harness-scaffold/pull/4
+- Commits: `ee1fc02` (implementation), `cfeeedd` (dogfood fix pass).
+- `bash -n scripts/install-harness.sh` → syntax OK.
+- `bash scripts/harness-check.sh` on real repo state → `ok: harness-check
+  passed — 5 story packet(s) validated, no violations.` (exit 0).
+- `bash scripts/validate.sh quick` → `=== validate:quick passed ===` (exit 0).
+- `cmp global-skills/harness-install/SKILL.md
+  ~/.claude/skills/harness-install/SKILL.md` → identical (copied to the
+  maintainer's actual global skill directory, outside this repo's git
+  history, as the AC requires).
+- Manual merge-mechanism simulation (scratchpad, kept this time for
+  independent reverification): extracted this repo's own
+  `HARNESS:BEGIN`/`HARNESS:END` block (100 of 100 lines — the whole file is
+  the block today, since no project-specific content exists outside it
+  yet); simulated first-install-into-existing-file via append
+  (`APPEND_OK_IDENTICAL` — pre-existing 6 lines of fixture content
+  byte-identical after); simulated a re-merge/update via span replace
+  (`REMERGE_OK_IDENTICAL`, updated content present exactly once, exactly one
+  `BEGIN`/`END` pair afterward — no duplication).
+- Dogfood: a fresh, no-shared-context agent ran `harness-supervise` against
+  the implementation commit (full report in the workpad Notes). Verified
+  the "pure wrapping edit" claim on `CLAUDE.md` independently (numstat
+  `+8/-0`, zero deleted lines, two additive hunks only) rather than trusting
+  the story's own assertion. Found two real gaps, both fixed in `cfeeedd`:
+  `scripts/install-harness.sh` touched but undeclared (D1, ratified), and
+  the first merge-simulation's evidence being unrerunnable (re-ran it,
+  kept artifacts this time). Correctly escalated rather than resolved two
+  items — the new `CLAUDE.md` ownership comment and the Declared-Files gap
+  — both confirmed ok by the maintainer in chat.
