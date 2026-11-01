@@ -37,7 +37,10 @@
 
 ## Deviations
 
-None.
+### D1 — Merge approval given in chat, not as a formal GitHub PR review (status: ratified)
+- Same pattern as US-002 D1 and US-003 D1; see `docs/HARNESS_BACKLOG.md` →
+  "Formal Merge-Approval Mechanism Doesn't Match Solo-Maintainer Reality".
+- Resolution: ratified by the maintainer's "ok" in this session, 2026-11-01.
 
 ## Notes
 

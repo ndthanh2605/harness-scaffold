@@ -2,7 +2,7 @@
 
 ## Status
 
-human_review
+merging
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-004.workpad.md from template, runs pull skill, begins implementation
