@@ -162,12 +162,12 @@ fully met. Never advance status optimistically.
 
 | From | To | Gate |
 |---|---|---|
-| `todo` | `in_progress` | Agent creates workpad sibling, runs pull skill, begins implementation |
-| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, any plan deviations recorded and ratified (see Plan Deviation Protocol), PR linked, no uncommitted changes. The `harness-supervise` skill (L2, see Enforcement below) runs here — additive: the gate itself is unchanged, the human now receives a pre-triaged report alongside the PR. |
-| `human_review` | `merging` | Human approves PR |
+| `todo` | `in_progress` | Agent creates workpad sibling, runs `harness-git-pull`, begins implementation |
+| `in_progress` | `human_review` | Workpad Plan + AC checked off, validation green, any plan deviations recorded and ratified (see Plan Deviation Protocol), no uncommitted changes. The `harness-supervise` skill (L2, see Enforcement below) runs here — additive: the gate itself is unchanged, the human now receives a pre-triaged report alongside the agent's summary. No PR is required (Decision 0009) — the agent presents the work (commits, diff, summary) in chat. |
+| `human_review` | `merging` | Human approves in chat; the agent records the approval in the workpad Notes (Decision 0009) |
 | `human_review` | `rework` | Human posts actionable feedback |
 | `rework` | `in_progress` | Agent resets workpad, re-implements |
-| `merging` | `done` | PR merged, test matrix row updated, Evidence complete |
+| `merging` | `done` | Changes pushed to `origin/main`, test matrix row updated, Evidence complete |
 | `any` | `blocked` | External blocker documented, human action needed |
 
 Story-execution status (`todo … done`) is distinct from behavior-proof
@@ -181,8 +181,8 @@ See `docs/decisions/0004-execution-state-machine.md` for the rationale.
    editing code. Record the reproduction signal in workpad Notes.
 2. **Workpad-first** — update the workpad sibling's plan before writing
    implementation. Planning lives in the file, not in the agent's memory.
-3. **Sync before editing** — invoke the `pull` skill before any code changes.
-   Record the sync result in workpad Notes.
+3. **Sync before editing** — invoke the `harness-git-pull` skill before any
+   code changes. Record the sync result in workpad Notes.
 4. **Status gates** — only transition story status when the gate for that
    state is fully met. Do not advance status optimistically.
 5. **Scope discipline** — out-of-scope improvements discovered during
@@ -247,7 +247,7 @@ only way forward.
 **Enforcement.** Enforcement runs through four named levels — never let a
 weaker level imply a stronger one. The goal is cheaper gates wherever one
 catches the same failure, not fewer gates: every level below still catches
-what it always caught, including plus human review at the
+what it always caught, with human review remaining the backstop at the
 `in_progress → human_review` gate.
 
 - **L0 — structural/mechanical (always on).** `scripts/harness-check.sh` —
@@ -255,8 +255,10 @@ what it always caught, including plus human review at the
   unratified (`open`) deviation in its workpad, checks that `## Declared
   Files` fences parse, and checks that the install manifest
   (`scripts/install-harness.sh`) and this repo's shipped
-  `.claude/skills/**/SKILL.md` files agree in both directions. This needs no
-  product code, so it runs even in a harness-only repo.
+  `.claude/skills/<name>/SKILL.md` files agree in both directions, one
+  directory level deep (matching how skills are actually discovered; not
+  arbitrarily nested). This needs no product code, so it runs even in a
+  harness-only repo.
 - **L1 — source markers (opt-in, project-level).** `.harness/deviation-scan`
   (shipped as `.harness/deviation-scan.example`) is a language-agnostic gate
   that fails on workaround markers added without a `DEVIATION:` note and on

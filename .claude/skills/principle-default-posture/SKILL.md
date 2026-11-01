@@ -11,8 +11,8 @@ disable-model-invocation: true
    editing. Record the reproduction signal in workpad Notes.
 2. **Workpad-first** — update the workpad's plan before writing
    implementation. Planning lives in the file, not in memory.
-3. **Sync before editing** — run the `pull` skill before any code changes.
-   Record the sync result in workpad Notes.
+3. **Sync before editing** — run the `harness-git-pull` skill before any
+   code changes. Record the sync result in workpad Notes.
 4. **Status gates** — only transition story status when the gate for that
    state is fully met. Never advance optimistically.
 5. **Scope discipline** — out-of-scope improvements discovered during

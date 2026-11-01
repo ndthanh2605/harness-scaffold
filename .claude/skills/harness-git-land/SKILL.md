@@ -1,14 +1,21 @@
 ---
 name: harness-git-land
 description: >
-  Safely merge an approved PR and close out the story packet. Use instead of
-  manually merging in this project — this skill verifies approval and CI, detects
-  the project's merge convention, transitions the story status to done, updates
-  TEST_MATRIX.md, and handles branch-protected main by opening a follow-up close PR.
-  Invoke when a story is in merging status and the PR has human approval.
+  DEPRECATED (see docs/decisions/0009-retire-pr-gate.md). This project no
+  longer uses a PR-based merge gate — stories push directly to main via
+  harness-git-push and move to done without a PR to land. Kept as optional
+  reference only, for the rare story that deliberately chose to work on a
+  branch and needs merge/cleanup steps. Do not invoke for normal stories.
 ---
 
 # Harness Git Land
+
+> **Deprecated.** This skill described the PR-based merge step from before
+> Decision 0009 retired the PR gate (2026-11-01). Normal stories push
+> directly to `main` via `harness-git-push` and move `human_review →
+> merging → done` without a PR. This file is kept only as optional
+> reference for the rare story that chose to work on its own branch and
+> still needs the merge-and-cleanup shape below.
 
 ## Goal
 

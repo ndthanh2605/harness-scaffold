@@ -97,15 +97,20 @@ fi
 
 # --- Install manifest ⇄ shipped skills drift (Decision 0008 L0) ---------------
 # Both directions: every shipped SKILL.md must be in the manifest, and every
-# manifest entry under .claude/skills/ must point to a file that exists.
+# manifest entry under .claude/skills/ (SKILL.md or any other shipped file,
+# e.g. a references/*.md) must point to a file that exists. gsub strips a
+# trailing \r explicitly so this behaves the same on a literal CRLF checkout
+# on a non-MSYS shell as it does today (where MSYS/LF-checkout line endings
+# happen to already be stripped).
 if [ -f scripts/install-harness.sh ]; then
   mapfile -t manifest_entries < <(awk '
     /^done <<.EOF.$/ { capture=1; next }
     capture && /^EOF$/ { capture=0; next }
-    capture { print }
+    capture { gsub(/\r$/, ""); print }
   ' scripts/install-harness.sh)
 
   mapfile -t manifest_skill_entries < <(printf '%s\n' "${manifest_entries[@]:-}" | grep -E '^\.claude/skills/.*SKILL\.md$' || true)
+  mapfile -t manifest_skills_dir_entries < <(printf '%s\n' "${manifest_entries[@]:-}" | grep -E '^\.claude/skills/' || true)
 
   mapfile -t actual_skill_files < <(find .claude/skills -mindepth 2 -maxdepth 2 -name 'SKILL.md' 2>/dev/null | sort)
 
@@ -115,7 +120,7 @@ if [ -f scripts/install-harness.sh ]; then
       || viol "scripts/install-harness.sh: manifest is missing '$sf' (shipped but not installed downstream)"
   done
 
-  for me in "${manifest_skill_entries[@]:-}"; do
+  for me in "${manifest_skills_dir_entries[@]:-}"; do
     [ -n "$me" ] || continue
     [ -f "$me" ] || viol "scripts/install-harness.sh: manifest entry '$me' does not exist in this repo"
   done

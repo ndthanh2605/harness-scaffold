@@ -94,7 +94,10 @@ Testable by running a story through the chosen convention end-to-end.
 
 ### Status
 
-proposed
+implemented — resolved via `docs/decisions/0009-retire-pr-gate.md` and
+US-006 (2026-11-01): the maintainer decided directly (option (b)) to retire
+the PR-based gate rather than add a chat-approval substitute. State machine
+gates, `harness-git-push`, and `harness-git-land` updated accordingly.
 
 ## Missing Harness Capability
 

@@ -29,7 +29,7 @@ Read in this order:
 9. `docs/decisions/` for why important choices were made.
 10. `.claude/skills/` for skill contracts:
     - `harness-intake` — feature intake, lane classification, story location (invoke at task start)
-    - `harness-git-commit`, `harness-git-push`, `harness-git-pull`, `harness-git-land` — git workflow contracts (use these, not the global commit-commands skills)
+    - `harness-git-commit`, `harness-git-push`, `harness-git-pull` — git workflow contracts (use these, not the global commit-commands skills). `harness-git-land` is deprecated (Decision 0009) — stories push directly to `main` and move to `done` without a PR to land.
 
 This harness does not ship with a project-specific `SPEC.md`. When the human
 provides a spec for a new project, treat that spec as input material for the
@@ -61,7 +61,7 @@ For every task:
    - Did we discover a repeated failure pattern?
    - Did the next agent need a clearer instruction?
    - Was the workpad sibling updated throughout execution?
-   - Was the correct skill used for each git operation (commit, push, pull, land)?
+   - Was the correct skill used for each git operation (commit, push, pull)?
    - Were any plan deviations recorded and ratified (not silently worked around)?
    - Is the story status at the correct state-machine gate for where work stands?
 7. Update routine harness files directly, or add a proposal to
