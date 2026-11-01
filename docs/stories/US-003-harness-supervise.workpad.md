@@ -32,7 +32,20 @@
 
 ## Deviations
 
-None.
+### D1 — Merge approval given in chat, not as a formal GitHub PR review (status: ratified)
+- Planned: `harness-git-land`'s step 1 checks for a GitHub `APPROVED` review via
+  `gh pr view --json reviews`.
+- Actual: `gh pr view` confirms no formal GitHub review exists; the maintainer's
+  approval ("ok, merge va tiep tuc") was given live in this session's chat instead.
+- Crosses invariant: not a code invariant — the house git-workflow contract
+  `harness-git-land` documents (a recorded GitHub review before merge).
+- Why: same root cause as US-002's D1 — this is a solo-maintainer repo where review
+  happens in conversation with the agent rather than via GitHub's review UI.
+- Resolution: ratified by the maintainer's explicit "merge and continue" in this
+  session, 2026-11-01. Proceeding to merge on that basis. Does not change
+  `harness-git-land` as a documented skill contract — a recurring pattern across
+  stories, not yet promoted to a harness-wide rule change (that would need its own
+  L3/Harness-Change-Policy decision, per the pattern noted after US-002's D1).
 
 ## Notes
 
