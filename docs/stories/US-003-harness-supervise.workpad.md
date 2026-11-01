@@ -38,6 +38,16 @@ None.
 
 - 2026-11-01: Story created (todo), workpad created, branch `story/US-003-harness-supervise` created from `main`@`10a8122`, transitioning to in_progress.
 - 2026-11-01: Synced with origin/main. Result: clean. HEAD: 10a8122
+- 2026-11-01: Committed (`069c776`). Dogfooded the new `harness-supervise` skill on this
+  story itself via a fresh, no-shared-context agent. Report: Verified all L0-L2 items
+  (Declared Files, Deviations, three independent reruns including the negative
+  drift-check fixture, Evidence/TEST_MATRIX claims). Needs-your-decision: (1) the
+  `docs/HARNESS.md` state-machine/L2-bullet edits, correctly flagged since they touch
+  feature-workflow/enforcement text — maintainer confirmed ok, both are direct
+  implementations of already-Accepted Decision 0008 item 6, no new authority introduced;
+  (2) story `## Evidence` still placeholder and PR not yet linked — true at the time,
+  being completed now; (3) `docs/TEST_MATRIX.md` row said `implemented` while story was
+  still `in_progress` — real bug, fixed (reverted to `in_progress`, will flip at `done`).
 
 ## Confusions
 
