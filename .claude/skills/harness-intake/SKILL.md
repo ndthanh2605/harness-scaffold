@@ -142,11 +142,12 @@ specific `pstack` skills — soft and optional throughout; every harness
 behavior works correctly without it.
 
 At the `in_progress → human_review` transition, invoke `harness-supervise`
-(a fresh, no-shared-context invocation) before presenting the PR — it
-mechanizes the L2 enforcement tier (see `principle-enforcement-tiers`) by
-independently re-verifying Declared Files, Deviations, Validation, and
-Evidence, and reports what still needs a human decision rather than
-approving on your behalf.
+(a fresh, no-shared-context invocation) before presenting the work to the
+human (Decision 0009: no PR required — the agent presents commits/diff/
+summary in chat) — it mechanizes the L2 enforcement tier (see
+`principle-enforcement-tiers`) by independently re-verifying Declared Files,
+Deviations, Validation, and Evidence, and reports what still needs a human
+decision rather than approving on your behalf.
 
 ---
 

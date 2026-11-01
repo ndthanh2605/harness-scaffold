@@ -98,15 +98,19 @@ fi
 # --- Install manifest ⇄ shipped skills drift (Decision 0008 L0) ---------------
 # Both directions: every shipped SKILL.md must be in the manifest, and every
 # manifest entry under .claude/skills/ (SKILL.md or any other shipped file,
-# e.g. a references/*.md) must point to a file that exists. gsub strips a
-# trailing \r explicitly so this behaves the same on a literal CRLF checkout
-# on a non-MSYS shell as it does today (where MSYS/LF-checkout line endings
-# happen to already be stripped).
+# e.g. a references/*.md) must point to a file that exists. The unconditional
+# `sub(/\r$/, "")` first rule strips a trailing \r from every line BEFORE the
+# marker patterns are matched against it — stripping only inside the capture
+# block (as an earlier version of this check did) is not enough, because the
+# `/^done <<.EOF.$/` and `/^EOF$/` marker lines themselves would still carry
+# their own trailing \r on a literal CRLF checkout read by a non-MSYS awk,
+# and never match, silently capturing nothing.
 if [ -f scripts/install-harness.sh ]; then
   mapfile -t manifest_entries < <(awk '
+    { sub(/\r$/, "") }
     /^done <<.EOF.$/ { capture=1; next }
     capture && /^EOF$/ { capture=0; next }
-    capture { gsub(/\r$/, ""); print }
+    capture { print }
   ' scripts/install-harness.sh)
 
   mapfile -t manifest_skill_entries < <(printf '%s\n' "${manifest_entries[@]:-}" | grep -E '^\.claude/skills/.*SKILL\.md$' || true)
