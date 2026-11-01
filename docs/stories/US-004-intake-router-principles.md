@@ -2,7 +2,7 @@
 
 ## Status
 
-in_progress
+human_review
 
 <!-- State machine — transition only when the gate is fully met:
   todo         → in_progress  : agent creates US-004.workpad.md from template, runs pull skill, begins implementation
@@ -140,4 +140,20 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
-Add commands, reports, screenshots, or links after validation exists.
+- PR: https://github.com/ndthanh2605/harness-scaffold/pull/3
+- Commit: `b2e7eae`.
+- `bash -n scripts/install-harness.sh` → syntax OK.
+- `bash scripts/harness-check.sh` on real repo state → `ok: harness-check
+  passed — 4 story packet(s) validated, no violations.` (exit 0).
+- Negative check: removed `principle-enforcement-tiers`'s manifest line →
+  `FAIL: ... manifest is missing '.claude/skills/principle-enforcement-tiers/SKILL.md'`
+  (exit 1); restored, reran clean.
+- `bash scripts/validate.sh quick` → `=== validate:quick passed ===` (exit 0).
+- Dogfood: a fresh, no-shared-context agent ran `harness-supervise` against
+  this story (full report in the workpad Notes), independently re-running
+  every fixture (including all four negative-manifest removals, in a
+  throwaway clone that left the real repo untouched) and confirming every
+  AC. L3 scan found nothing. Two non-blocking minor notes recorded, not
+  fixed in this story (see workpad): a small duplicate of the L3 category
+  list in `principle-enforcement-tiers`, and an inherited "pull skill" vs.
+  `harness-git-pull` naming mismatch already present in `HARNESS.md`.

@@ -18,7 +18,7 @@
     (no invariant crossed, same file, caught and fixed before any commit).
 - [x] Step 4: Ran `scripts/harness-check.sh` and `scripts/validate.sh quick` — green. Also ran a negative check (removed `principle-enforcement-tiers` from the manifest, confirmed FAIL, restored, confirmed clean).
 - [x] Step 5: Updated `docs/TEST_MATRIX.md`.
-- [ ] Step 6: Commit, push, open PR, dogfood `harness-supervise` on this story.
+- [x] Step 6: Committed (`b2e7eae`), dogfooded `harness-supervise` (clean report), pushed, opened PR #3.
 
 ## Acceptance Criteria
 
@@ -43,6 +43,18 @@ None.
 
 - 2026-11-01: Story created (todo), workpad created, branch `story/US-004-intake-router-principles` created from `main`@`c53224e`, transitioning to in_progress.
 - 2026-11-01: Synced with origin/main. Result: clean. HEAD: c53224e
+- 2026-11-01: Committed (`b2e7eae`). Dogfooded `harness-supervise` on this story itself
+  via a fresh, no-shared-context agent (ran all four negative-manifest fixtures in a
+  throwaway clone, left the real repo untouched). Verified: Declared Files exact match,
+  no open deviations, unit/integration/E2E reruns all matched claims, both ACs about
+  `disable-model-invocation` and short-distillation-with-pointer confirmed, harness-intake
+  diff purely additive (+16/-0, step order intact), L3 scan found nothing. Two non-blocking
+  minor notes: `principle-enforcement-tiers` has a small duplicate of the L3 category list
+  (acceptable per the story's own invariant), and `principle-default-posture` inherits
+  `HARNESS.md`'s existing "pull skill" wording instead of the real skill name
+  `harness-git-pull` (pre-existing wording bug, not introduced here — candidate backlog item).
+  Needs-your-decision: only the expected "not yet pushed, no PR, Evidence still placeholder" —
+  true at the time, now being completed. Pushed, opened PR #3.
 
 ## Confusions
 
