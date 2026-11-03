@@ -152,13 +152,95 @@ write_source_file() {
   case "$relative" in *.sh) chmod +x "$target" ;; esac
 }
 
+# CLAUDE.md is never treated as an ordinary whole-file manifest entry: it is
+# always merged by marker, regardless of --merge/--override, so existing
+# project-specific content outside the HARNESS:BEGIN/END span is never lost
+# (Decision 0007; this used to live only as prose in the separate
+# harness-install skill, which is why it was never actually enforced here).
+merge_claude_md() {
+  local target="$TARGET_DIR/CLAUDE.md"
+
+  if [ "$SOURCE_MODE" = "local" ] && [ -e "$target" ] && [ "$SOURCE_ROOT/CLAUDE.md" -ef "$target" ]; then
+    log "skip     CLAUDE.md (source file)"
+    SKIPPED=$((SKIPPED + 1))
+    return
+  fi
+
+  local source_claude
+  if [ "$SOURCE_MODE" = "local" ]; then
+    source_claude="$SOURCE_ROOT/CLAUDE.md"
+    [ -f "$source_claude" ] || fail "Source file missing: $source_claude"
+  else
+    source_claude="$(mktemp)"
+    curl -fsSL "$SOURCE_BASE_URL/CLAUDE.md" -o "$source_claude" \
+      || fail "Could not download $SOURCE_BASE_URL/CLAUDE.md"
+  fi
+
+  local block_file
+  block_file="$(mktemp)"
+  awk '
+    /<!-- HARNESS:BEGIN -->/ { f=1 }
+    f { print }
+    /<!-- HARNESS:END -->/ { f=0 }
+  ' "$source_claude" > "$block_file"
+  [ "$SOURCE_MODE" = "local" ] || rm -f "$source_claude"
+  [ -s "$block_file" ] || fail "Source CLAUDE.md has no HARNESS:BEGIN/END block"
+
+  if [ ! -e "$target" ]; then
+    if [ "$DRY_RUN" -eq 1 ]; then
+      log "create   CLAUDE.md"
+    else
+      mkdir -p "$(dirname "$target")"
+      cp "$block_file" "$target"
+      log "created  CLAUDE.md"
+    fi
+    CREATED=$((CREATED + 1))
+    rm -f "$block_file"
+    return
+  fi
+
+  if grep -q '<!-- HARNESS:BEGIN -->' "$target" && grep -q '<!-- HARNESS:END -->' "$target"; then
+    if [ "$DRY_RUN" -eq 1 ]; then
+      log "merge    CLAUDE.md (replace managed block; content outside untouched)"
+    else
+      local backup="$BACKUP_DIR/CLAUDE.md"
+      mkdir -p "$(dirname "$backup")"
+      cp -p "$target" "$backup"
+      awk -v blockfile="$block_file" '
+        BEGIN { n = 0; while ((getline line < blockfile) > 0) block[++n] = line; close(blockfile) }
+        /<!-- HARNESS:BEGIN -->/ { inblock = 1; for (i = 1; i <= n; i++) print block[i]; next }
+        /<!-- HARNESS:END -->/   { inblock = 0; next }
+        !inblock { print }
+      ' "$target" > "${target}.harness-tmp"
+      mv "${target}.harness-tmp" "$target"
+      log "merged   CLAUDE.md (replaced managed block, backup: ${backup#$TARGET_DIR/})"
+    fi
+    UPDATED=$((UPDATED + 1))
+  else
+    if [ "$DRY_RUN" -eq 1 ]; then
+      log "merge    CLAUDE.md (append managed block; existing content preserved)"
+    else
+      local backup="$BACKUP_DIR/CLAUDE.md"
+      mkdir -p "$(dirname "$backup")"
+      cp -p "$target" "$backup"
+      printf '\n' >> "$target"
+      cat "$block_file" >> "$target"
+      log "merged   CLAUDE.md (appended managed block, backup: ${backup#$TARGET_DIR/})"
+    fi
+    UPDATED=$((UPDATED + 1))
+  fi
+  rm -f "$block_file"
+}
+
 # Note: .claude/ is not protected here because target projects may already
 # use it for their own settings; new files under .claude/skills/ install
 # only into matching subdirectories and never overwrite without --force.
+# CLAUDE.md is deliberately NOT in this list: merge_claude_md() always
+# merges it safely (by marker, never as a whole file), so its existence
+# never needs a merge/override/stop decision.
 check_protected_target_paths() {
   local conflicts=()
 
-  [ -e "$TARGET_DIR/CLAUDE.md" ] && conflicts+=("CLAUDE.md")
   [ -e "$TARGET_DIR/docs" ] && conflicts+=("docs/")
   [ -e "$TARGET_DIR/scripts" ] && conflicts+=("scripts/")
 
@@ -182,7 +264,8 @@ check_protected_target_paths() {
       ;;
     override)
       CONFLICT_ACTION="override"
-      override_protected_target_paths
+      FORCE=1
+      log "Continuing with override. Existing harness-owned files will be backed up and replaced; anything else is left alone."
       return 0
       ;;
     stop)
@@ -198,7 +281,7 @@ check_protected_target_paths() {
     printf 'Warning: target already contains protected Harness paths: %s\n' "$joined"
     printf 'Choose how to continue:\n'
     printf '  1. Merge    Copy missing Harness files and skip existing files\n'
-    printf '  2. Override Back up and replace CLAUDE.md, docs/, and scripts/\n'
+    printf '  2. Override Back up and replace existing Harness-owned files individually; anything else under docs/ or scripts/ is left alone\n'
     printf '  3. Stop     Exit without writing files (recommended)\n'
   } > /dev/tty
   prompt_tty 'Choice [1/2/3, default 3]: '
@@ -212,7 +295,8 @@ check_protected_target_paths() {
       ;;
     2|o|O|override|Override)
       CONFLICT_ACTION="override"
-      override_protected_target_paths
+      FORCE=1
+      log "Continuing with override. Existing harness-owned files will be backed up and replaced; anything else is left alone."
       ;;
     ""|3|s|S|stop|Stop)
       warn_stop "installation stopped by user."
@@ -221,23 +305,6 @@ check_protected_target_paths() {
       warn_stop "unknown choice: $choice"
       ;;
   esac
-}
-
-override_protected_target_paths() {
-  local protected
-
-  for protected in CLAUDE.md docs scripts; do
-    [ -e "$TARGET_DIR/$protected" ] || continue
-
-    if [ "$DRY_RUN" -eq 1 ]; then
-      log "override $protected (backup first)"
-      continue
-    fi
-
-    mkdir -p "$BACKUP_DIR"
-    mv "$TARGET_DIR/$protected" "$BACKUP_DIR/$protected"
-    log "removed  $protected (backup: ${BACKUP_DIR#$TARGET_DIR/}/$protected)"
-  done
 }
 
 TARGET_INPUT="${HARNESS_TARGET_DIR:-$PWD}"
@@ -365,6 +432,8 @@ else
 fi
 log "Target project: $TARGET_DIR"
 
+merge_claude_md
+
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   case "$line" in
@@ -379,7 +448,6 @@ while IFS= read -r line; do
   esac
   copy_file "$src_relative" "$tgt_relative"
 done <<'EOF'
-CLAUDE.md
 .claude/skills/harness-intake/SKILL.md
 .claude/skills/harness-intake/references/pstack-routing.md
 .claude/skills/harness-git-commit/SKILL.md

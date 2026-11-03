@@ -199,13 +199,21 @@ From a target project directory, run:
 curl -fsSL "https://raw.githubusercontent.com/ndthanh2605/harness-scaffold/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --yes
 ```
 
-If the target already has `CLAUDE.md`, `docs/`, or `scripts/`, choose one:
+`CLAUDE.md` is always merged safely: if the target has no `CLAUDE.md`, a
+fresh one is created; if it already has one, only the content between
+`<!-- HARNESS:BEGIN -->`/`<!-- HARNESS:END -->` is created or replaced —
+everything else in that file, written by the target project, is never
+touched. `CLAUDE.md` existing is never itself a reason to stop or prompt.
+
+If the target already has `docs/` or `scripts/`, choose one:
 
 ```bash
 # Keep existing files and add only missing Harness files
 curl -fsSL "https://raw.githubusercontent.com/ndthanh2605/harness-scaffold/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --merge --yes
 
-# Back up and replace CLAUDE.md, docs/, and scripts/
+# Back up and replace existing Harness-owned files individually; anything
+# else already under docs/ or scripts/ that the installer doesn't ship is
+# left exactly where it is
 curl -fsSL "https://raw.githubusercontent.com/ndthanh2605/harness-scaffold/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --override --yes
 ```
 
@@ -215,8 +223,8 @@ Or install into a specific path:
 curl -fsSL "https://raw.githubusercontent.com/ndthanh2605/harness-scaffold/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --directory /path/to/project --yes
 ```
 
-If the target already contains `CLAUDE.md`, `docs/`, or `scripts/`, interactive
-installs ask whether to `1. Merge`, `2. Override`, or `3. Stop`. Non-interactive
-installs using `--yes` stop before writing unless `--merge` or `--override` is
+If the target already contains `docs/` or `scripts/`, interactive installs ask
+whether to `1. Merge`, `2. Override`, or `3. Stop`. Non-interactive installs
+using `--yes` stop before writing unless `--merge` or `--override` is
 provided. Use `--dry-run` to preview changes. The installer itself and this
 repository's installer story are not copied into the target project.
