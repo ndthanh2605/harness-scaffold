@@ -2,8 +2,10 @@
 
 This file maps product behavior to proof.
 
-No product behavior has been defined or implemented yet. Do not mark a row
-implemented until tests or validation evidence exist.
+This matrix has no story-tracked rows yet — rows fill in as stories are
+completed through this harness, regardless of whatever else already exists
+in this repository. Do not mark a row implemented until tests or validation
+evidence exist.
 
 ## Status Values
 

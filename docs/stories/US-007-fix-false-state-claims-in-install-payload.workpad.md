@@ -35,10 +35,51 @@
 - [x] `scripts/harness-check.sh` + `validate.sh quick` on harness-scaffold itself — both green (`7 story packet(s) validated`).
 - [x] Scratch-target dry-run + real install: `grep` confirmed only `docs/README.md`/`docs/decisions/README.md`/etc. created, no top-level `README.md`, `docs/decisions/` contained only `README.md`, `docs/TEST_MATRIX.md` had `0` occurrences of `US-00` (the clean seed); target's `harness-check.sh` passed (`0 story packet(s)`); `grep` confirmed `CLAUDE.md` there had `0` occurrences of the false claim.
 - [x] Re-run against real LeanGoes-Dict (via `--override --force`): `0` false-claim occurrences in `CLAUDE.md`, `0` pre-existing project files touched (`src`/`tests`/`data-pipeline`/`.superpowers`/`.sln`/`.gitignore`), `harness-check.sh` and `validate.sh quick` both green there.
+- [x] Post-dogfood fix pass: fixed the seed `TEST_MATRIX.md`'s own remaining
+  "implemented yet" wording (same bug class), added
+  `docs/templates/seed/HARNESS_BACKLOG.md` + remap, generalized one leftover
+  literal `docs/decisions/0008-tiered-enforcement.md` citation inside the
+  live `HARNESS_BACKLOG.md`'s template. Re-verified with a fresh scratch
+  target that already had `src/main.c`: `HARNESS_BACKLOG.md` installed
+  there has 0 `US-00x` references, `TEST_MATRIX.md` has 0 "implemented yet"
+  occurrences, `src/main.c` untouched, target `harness-check.sh` green.
 
 ## Deviations
 
-None.
+### D1 — E2E rerun used `--override --force` instead of the AC's specified `--merge` (status: ratified)
+- Planned: the story's AC/Validation table specified re-running `--merge`
+  against `F:\Projects\LeanGoes-Dict` to prove the fix there.
+- Actual: the stale buggy files from the 2026-11-01 install were still
+  present there (untracked, not yet cleaned up), so `--merge` would have
+  skipped everything (leaving the old false claims and old TEST_MATRIX.md
+  in place, proving nothing). Used `--override --force` instead — the
+  installer's own backup-then-replace mechanism — after a raw `rm -rf` of
+  the stale files was attempted first and blocked by the auto-mode
+  classifier as an irreversible-destruction risk.
+- Crosses invariant: the Stop Conditions name "an acceptance criterion's
+  proof method has to change" as requiring this protocol.
+- Why: `harness-supervise`'s dogfood run on this story correctly caught
+  that this substitution was never recorded as a deviation.
+- Resolution: ratified by the maintainer in chat, 2026-11-01. The
+  maintainer is now actively editing content directly inside
+  `F:\Projects\LeanGoes-Dict` themselves (2026-11-03) — no further changes
+  will be made to that repo from this session.
+
+### D2 — `docs/HARNESS_BACKLOG.md` and its literal decision citation were in scope but not originally declared (status: ratified)
+- Planned: the story's Product Contract said the payload "must not ship
+  harness-scaffold's own development history," but `## Declared Files`
+  didn't list `docs/HARNESS_BACKLOG.md` or its seed counterpart.
+- Actual: the dogfood run correctly found `docs/HARNESS_BACKLOG.md` still
+  shipping 9 references to this repo's own `US-00x` stories, violating the
+  Product Contract's own stated promise. Added
+  `docs/templates/seed/HARNESS_BACKLOG.md` (template + no items) with the
+  same `source:target` remap as `TEST_MATRIX.md`, and generalized one
+  leftover literal `docs/decisions/0008-tiered-enforcement.md` citation
+  inside the live `HARNESS_BACKLOG.md`'s own template section (same fix
+  shape as `HARNESS.md`'s citations).
+- Crosses invariant: undeclared file + a Product Contract gap.
+- Resolution: `## Declared Files` corrected. Ratified by the maintainer in
+  chat, 2026-11-03.
 
 ## Notes
 

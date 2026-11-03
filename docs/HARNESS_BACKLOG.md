@@ -25,9 +25,9 @@ What was hard, repeated, ambiguous, or unsafe?
 What observation proves this pain point is real, not a hunch (a reproduced
 failure, a repeated transcript pattern, a specific friction moment — not "this
 seems like it would help"). When moving to `implemented`, append what an
-independent rerun (a fresh agent with no shared context, per
-`docs/decisions/0008-tiered-enforcement.md`'s L2) confirmed the fix actually
-worked.
+independent rerun (a fresh agent with no shared context, per this project's
+own enforcement-tiers decision record, where tracked locally) confirmed the
+fix actually worked.
 
 ### Suggested Improvement
 

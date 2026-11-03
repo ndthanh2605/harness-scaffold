@@ -2,7 +2,7 @@
 
 ## Status
 
-in_progress
+done
 
 <!-- State machine (Decision 0009 — no PR):
   todo → in_progress → human_review → merging → done, or any → blocked
@@ -107,7 +107,9 @@ docs/HARNESS.md
 .claude/skills/harness-intake/SKILL.md
 scripts/install-harness.sh
 docs/templates/seed/TEST_MATRIX.md
+docs/templates/seed/HARNESS_BACKLOG.md
 docs/TEST_MATRIX.md
+docs/HARNESS_BACKLOG.md
 docs/stories/US-007-fix-false-state-claims-in-install-payload.md
 docs/stories/US-007-fix-false-state-claims-in-install-payload.workpad.md
 ```
@@ -153,4 +155,42 @@ embed execution state in this packet — keep the packet a stable contract.
 
 ## Evidence
 
-Add commands, reports, screenshots, or links after validation exists.
+- Commits: `1a670ce` (initial fix), plus a follow-up commit for the
+  `harness-supervise` dogfood findings below.
+- `bash -n scripts/install-harness.sh` → syntax OK.
+- `bash scripts/harness-check.sh` / `bash scripts/validate.sh quick` on
+  harness-scaffold's own repo state → both green throughout.
+- Scratch-target dry-run + real install (empty target): `docs/README.md`,
+  `docs/decisions/README.md`, `docs/product/README.md`, etc. created; no
+  top-level `README.md`; `docs/decisions/` contains only `README.md`;
+  `docs/TEST_MATRIX.md` byte-identical to `docs/templates/seed/TEST_MATRIX.md`
+  (`cmp`); target's own `harness-check.sh` passes (`0 story packet(s)`);
+  `grep` confirms `0` occurrences of the false "no implementation" claim in
+  the installed `CLAUDE.md`.
+- Scratch-target `--merge` into a target with a pre-existing `src/main.c`:
+  file untouched, no `README.md` created, `docs/decisions/` holds only
+  `README.md`, target `harness-check.sh` green — stands in for the
+  LeanGoes-Dict scenario.
+- Real-world re-verification against `F:\Projects\LeanGoes-Dict` (via
+  `--override --force`, D1): `0` false-claim occurrences in the installed
+  `CLAUDE.md`, `0` pre-existing project files touched (`src`, `tests`,
+  `data-pipeline`, `.superpowers`, `.sln`, `.gitignore`), `harness-check.sh`
+  and `validate.sh quick` both green there. No further changes made to that
+  repo after this — the maintainer is now working directly in it.
+- Post-dogfood fix pass (D2): fixed the seed `TEST_MATRIX.md`'s own
+  remaining "implemented yet" wording, added
+  `docs/templates/seed/HARNESS_BACKLOG.md` (0 `US-00x` references, verified
+  by a fresh scratch install with pre-existing `src/main.c`, which stayed
+  untouched), generalized one leftover literal decision-path citation in
+  the live `HARNESS_BACKLOG.md`'s own template section.
+- Dogfood: a fresh, no-shared-context agent ran `harness-supervise` against
+  `1a670ce` (full report in the workpad Notes). Verified every AC
+  independently (byte-level `cmp`, fresh scratch installs, grep-based
+  absence checks) rather than trusting the story's claims. Found real gaps:
+  the seed `TEST_MATRIX.md` still carried the same class of false claim it
+  was supposed to remove, an undeclared/unratified proof-method change
+  (`--override --force` vs. the AC's `--merge`), `docs/HARNESS_BACKLOG.md`
+  shipping scaffold-specific history despite the Product Contract's own
+  promise not to, and an empty Evidence section. All fixed; correctly
+  escalated (not resolved) the CLAUDE.md wording change as a possible
+  architecture-direction question — maintainer confirmed it in chat.
