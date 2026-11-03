@@ -7,12 +7,16 @@
      instructions there and they are never touched by harness-install. -->
 # Agent Operating Guide
 
-This repository is in Harness v0. There is no product implementation yet.
+This repository uses the Harness v0 operating model (see `docs/HARNESS.md`)
+for human-agent collaboration: feature intake, risk-lane classification,
+story packets, an execution state machine, and a validation ladder.
 
-The current job of agents is to preserve and grow the collaboration harness
-before writing application code. Do not scaffold application source folders,
-platform shells, package scripts, CI, or tests unless a later story explicitly
-moves the project into implementation.
+Agents work through this model for every task. Do not add new application
+scaffolding, package tooling, CI, test runner config, or infrastructure
+speculatively — add it only when a story explicitly calls for it. This rule
+is about not adding *unrequested* structure; it applies the same way whether
+this repository has no implementation yet or substantial existing
+implementation already.
 
 ## Source Of Truth
 

@@ -24,6 +24,8 @@ future user-provided spec.
 
 ## Current State
 
-Harness v0 exists before implementation. These docs define how the project will
-grow; they do not imply that app code, tests, CI, or deployment automation exist
-yet.
+These docs define the Harness v0 operating model — how work enters, gets
+classified, and gets proven — not whether application code, tests, CI, or
+deployment automation already exist in this repository. A repository can
+have substantial existing implementation and still use this same operating
+model for new work.

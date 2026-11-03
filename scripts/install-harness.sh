@@ -85,44 +85,50 @@ make_absolute_parent() {
   (cd "$parent" && printf '%s/%s\n' "$(pwd -P)" "$(basename "$path")")
 }
 
+# $1 = source-relative path (where the content comes from in this repo).
+# $2 = target-relative path (where it lands in the target project). Equal for
+# almost every manifest entry; they differ only for a seed file like
+# docs/templates/seed/TEST_MATRIX.md, which installs AS docs/TEST_MATRIX.md
+# rather than at its own source path.
 copy_file() {
-  local relative="$1"
-  local target="$TARGET_DIR/$relative"
+  local src_relative="$1"
+  local tgt_relative="$2"
+  local target="$TARGET_DIR/$tgt_relative"
 
   if [ -e "$target" ]; then
-    if [ "$SOURCE_MODE" = "local" ] && [ "$SOURCE_ROOT/$relative" -ef "$target" ]; then
-      log "skip     $relative (source file)"
+    if [ "$SOURCE_MODE" = "local" ] && [ "$SOURCE_ROOT/$src_relative" -ef "$target" ]; then
+      log "skip     $tgt_relative (source file)"
       SKIPPED=$((SKIPPED + 1))
       return
     fi
 
     if [ "$CONFLICT_ACTION" = "merge" ]; then
-      log "skip     $relative (merge keeps existing file)"
+      log "skip     $tgt_relative (merge keeps existing file)"
       SKIPPED=$((SKIPPED + 1))
     elif [ "$FORCE" -eq 1 ]; then
       if [ "$DRY_RUN" -eq 1 ]; then
-        log "overwrite $relative (backup first)"
+        log "overwrite $tgt_relative (backup first)"
       else
-        local backup="$BACKUP_DIR/$relative"
+        local backup="$BACKUP_DIR/$tgt_relative"
         mkdir -p "$(dirname "$backup")"
         cp -p "$target" "$backup"
-        write_source_file "$relative" "$target"
-        log "updated $relative (backup: ${backup#$TARGET_DIR/})"
+        write_source_file "$src_relative" "$target"
+        log "updated $tgt_relative (backup: ${backup#$TARGET_DIR/})"
       fi
       UPDATED=$((UPDATED + 1))
     else
-      log "skip     $relative (already exists)"
+      log "skip     $tgt_relative (already exists)"
       SKIPPED=$((SKIPPED + 1))
     fi
     return
   fi
 
   if [ "$DRY_RUN" -eq 1 ]; then
-    log "create   $relative"
+    log "create   $tgt_relative"
   else
     mkdir -p "$(dirname "$target")"
-    write_source_file "$relative" "$target"
-    log "created  $relative"
+    write_source_file "$src_relative" "$target"
+    log "created  $tgt_relative"
   fi
   CREATED=$((CREATED + 1))
 }
@@ -359,8 +365,19 @@ else
 fi
 log "Target project: $TARGET_DIR"
 
-while IFS= read -r relative; do
-  copy_file "$relative"
+while IFS= read -r line; do
+  [ -n "$line" ] || continue
+  case "$line" in
+    *:*)
+      src_relative="${line%%:*}"
+      tgt_relative="${line#*:}"
+      ;;
+    *)
+      src_relative="$line"
+      tgt_relative="$line"
+      ;;
+  esac
+  copy_file "$src_relative" "$tgt_relative"
 done <<'EOF'
 CLAUDE.md
 .claude/skills/harness-intake/SKILL.md
@@ -374,23 +391,13 @@ CLAUDE.md
 .claude/skills/principle-invariant-markers/SKILL.md
 .claude/skills/principle-default-posture/SKILL.md
 .claude/skills/principle-enforcement-tiers/SKILL.md
-README.md
 docs/ARCHITECTURE.md
 docs/FEATURE_INTAKE.md
 docs/GLOSSARY.md
 docs/HARNESS.md
 docs/HARNESS_BACKLOG.md
 docs/README.md
-docs/TEST_MATRIX.md
-docs/decisions/0001-harness-first-development.md
-docs/decisions/0002-post-spec-product-lifecycle.md
-docs/decisions/0003-generic-spec-intake-harness.md
-docs/decisions/0004-execution-state-machine.md
-docs/decisions/0005-plan-deviation-protocol.md
-docs/decisions/0006-config-driven-validation.md
-docs/decisions/0007-overlay-authority-and-explicit-invocation.md
-docs/decisions/0008-tiered-enforcement.md
-docs/decisions/0009-retire-pr-gate.md
+docs/templates/seed/TEST_MATRIX.md:docs/TEST_MATRIX.md
 docs/decisions/README.md
 docs/product/README.md
 docs/stories/README.md

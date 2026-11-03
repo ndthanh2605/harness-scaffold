@@ -83,13 +83,18 @@ Search `docs/stories/` for an existing story that covers this request.
 
 ---
 
-## Step 5 — Check scope against Harness v0 constraint
+## Step 5 — Check scope against the no-speculative-scaffolding rule
 
-Confirm the request does not violate the v0 rule:
+Confirm the request does not violate this rule:
 
-> Agents do not scaffold application source folders, platform shells, package
-> scripts, CI, or tests unless a story explicitly moves the project into
-> implementation.
+> Do not add new application source folders, platform shells, package
+> scripts, CI, test runner config, or infrastructure speculatively. Add them
+> only when the current story explicitly calls for them — regardless of how
+> much application code already exists elsewhere in the repository.
+
+This is about not adding *unrequested* structure, not about assuming the
+repository is empty. A repository with substantial existing implementation
+still follows this rule for anything new.
 
 If the request would violate this, surface it explicitly before proceeding.
 

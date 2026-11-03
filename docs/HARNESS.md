@@ -172,7 +172,7 @@ fully met. Never advance status optimistically.
 
 Story-execution status (`todo … done`) is distinct from behavior-proof
 status in `TEST_MATRIX.md` (`planned … implemented … retired`). Both stay.
-See `docs/decisions/0004-execution-state-machine.md` for the rationale.
+See this project's own `docs/decisions/` for the rationale, where tracked locally.
 
 ### Default Posture
 
@@ -271,8 +271,7 @@ what it always caught, with human review remaining the backstop at the
   observation proves the claim is real) plus a fresh, independent agent
   re-verifying it — no external consumer required, a fresh fork with no
   shared context satisfies it. Mechanized by the `harness-supervise` skill
-  (`.claude/skills/harness-supervise/SKILL.md`; see
-  `docs/decisions/0008-tiered-enforcement.md`), invoked at the
+  (`.claude/skills/harness-supervise/SKILL.md`), invoked at the
   `in_progress → human_review` transition, which may confirm or flag L0–L2
   items only — it must escalate, never resolve, anything that touches an L3
   category below.
@@ -293,10 +292,10 @@ Deviations that are hard to verify by pattern-matching stay at L3, unchanged.
 
 Beyond these, recording deviations honestly remains the agent's responsibility; a
 richer durable surface (a `harness-cli` deviation/intervention record + a
-`story verify` gate) stays the future option in `docs/HARNESS_BACKLOG.md`. See
-`docs/decisions/0005-plan-deviation-protocol.md`,
-`docs/decisions/0006-config-driven-validation.md`, and
-`docs/decisions/0008-tiered-enforcement.md`.
+`story verify` gate) stays the future option in `docs/HARNESS_BACKLOG.md`. This
+project's own `docs/decisions/` records the rationale for the Plan Deviation
+Protocol, config-driven validation, and the enforcement tiers, where tracked
+locally.
 
 ### Blocked-Access Escape Hatch
 
@@ -320,8 +319,8 @@ docs, templates (`docs/templates/`), validation hooks (`.harness/`), and
 decision records (`docs/decisions/`) — explicitly **not** application source,
 per the v0 scope rule above. A `HARNESS_BACKLOG.md` proposal must state its
 change as a diff against one of these named surfaces, not free prose, and must
-carry an `Evidence` field proving the friction is real (see
-`docs/decisions/0008-tiered-enforcement.md`).
+carry an `Evidence` field proving the friction is real (see this project's own
+`docs/decisions/` for the enforcement-tiers rationale, where tracked locally).
 
 ## Validation Ladder
 
