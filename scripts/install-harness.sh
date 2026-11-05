@@ -13,13 +13,16 @@ Options:
       --merge            On protected-path conflict, keep existing files and
                          install only missing Harness files.
       --override         On protected-path conflict, back up and replace
-                         CLAUDE.md, docs/, and scripts/.
+                         existing Harness-owned files individually under
+                         docs/ and scripts/. Non-Harness content in those
+                         paths is never touched.
       --force            Overwrite existing files after backing them up.
       --dry-run          Show what would change without writing files.
   -h, --help             Show this help.
 
 Safety:
-  If CLAUDE.md, docs/, or scripts/ already exist, interactive installs ask
+  CLAUDE.md is always merged safely by marker and is never a reason to
+  prompt. If docs/ or scripts/ already exist, interactive installs ask
   whether to merge missing files, override after backup, or stop. Non-
   interactive installs stop unless --merge or --override is provided.
 

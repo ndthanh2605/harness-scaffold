@@ -16,7 +16,7 @@
 - [x] Step 7: Fixture: `merge_claude_md()` append case (target `CLAUDE.md`, no markers) and replace-span case (target already has a `HARNESS:BEGIN/END` pair with stale inner content) — both byte-identical outside the affected region, exactly one marker pair afterward.
 - [x] Step 8: Confirmed self-skip (installing into harness-scaffold itself) still works; `--merge` for non-`CLAUDE.md` files unchanged.
 - [x] Step 9: Updated `docs/TEST_MATRIX.md`.
-- [ ] Step 10: Commit, push. **Dogfood `harness-supervise` deferred** — session usage limit reached; this run stops after commit/push without the independent review this story's own process otherwise requires. Flagging this explicitly rather than skipping it silently.
+- [x] Step 10: Ran `harness-supervise` dogfood (fresh pass) against commit `1f76407`. All fixtures and validation reproduced independently. One gap found: `usage()`/`--help` text in `scripts/install-harness.sh` still described the old wholesale override behavior — fixed, re-validated green. Status moved to `done`.
 
 ## Acceptance Criteria
 
@@ -45,6 +45,7 @@ None.
 
 - 2026-11-03: Synced with origin/main. Result: clean. HEAD: 8b8fd54
 - 2026-11-03: Story created (todo), workpad created. Direct on `main`, no feature branch, per Decision 0009. Confirmed root cause by reading `override_protected_target_paths()` directly: it `mv`s the whole `CLAUDE.md`/`docs`/`scripts` paths to `.harness-backup/`, which moved LeanGoes-Dict's own unrelated `docs/` content (e.g. `.superpowers`-related material) along with the harness files when `--override --force` was run there in US-007's validation. Maintainer already restored the affected files directly in LeanGoes-Dict; this story only fixes harness-scaffold's own logic, no further changes to that repo.
+- 2026-11-05: Ran the deferred `harness-supervise` dogfood against `1f76407` (fresh pass, rebuilt all fixtures independently in isolated scratch dirs rather than trusting the earlier run's output). Everything claimed reproduced exactly. One finding: `scripts/install-harness.sh`'s own `--help` text (`usage()`) was not updated by the original fix and still claimed the old wholesale `CLAUDE.md`/`docs`/`scripts` override behavior — the same false-claim bug class US-007/US-008 exist to remove, surviving in the installer's own help output. Maintainer chose to fix it in this story rather than backlog it. Corrected, re-validated (`harness-check.sh`, `validate.sh quick`) green. Status → `done`.
 
 ## Confusions
 

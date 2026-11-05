@@ -2,7 +2,7 @@
 
 ## Status
 
-human_review
+done
 
 <!-- State machine (Decision 0009 — no PR):
   todo → in_progress → human_review → merging → done, or any → blocked
@@ -212,8 +212,15 @@ embed execution state in this packet — keep the packet a stable contract.
   included.
 - `bash scripts/harness-check.sh` / `bash scripts/validate.sh quick` on
   harness-scaffold's own repo state → green throughout.
-- **Not yet done:** the `harness-supervise` independent-rerun dogfood this
-  story's own process calls for was deferred — the session's usage limit
-  was reached before it could run. Status set to `human_review` rather
-  than `done` to reflect this honestly; a fresh dogfood pass should run
-  before merging.
+- `harness-supervise` dogfood (fresh pass, no shared context with the
+  implementing session): independently rebuilt all three fixtures from
+  scratch in isolated scratch dirs and reproduced every claim above
+  byte-for-byte; reran `bash -n`, `harness-check.sh`, `validate.sh quick`;
+  confirmed `global-skills/harness-install/SKILL.md` is byte-identical to
+  the synced `~/.claude/skills/harness-install/SKILL.md` copy. One gap
+  found and fixed: `scripts/install-harness.sh`'s own `usage()`/`--help`
+  text still described the old wholesale `CLAUDE.md`/`docs/`/`scripts/`
+  override behavior — corrected to match the real per-file/marker-merge
+  behavior now that the fix lands, then harness-check.sh/validate.sh quick
+  rerun green again. No L3-category touch, no open deviations, no
+  unverifiable claims.
